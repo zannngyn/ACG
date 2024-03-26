@@ -1700,7 +1700,7 @@ html {
   }
 }
 .navbar__arrow {
-  margin-top: 3px;
+  margin-top: -3px;
 }
 @media (max-width: 991.98px) {
   .navbar__arrow {
@@ -2271,7 +2271,7 @@ html {
   position: absolute;
   inset: 0 0 0 var(--main-column-width);
   display: none;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   gap: var(--inner-padding);
   padding-left: var(--inner-padding);
   overflow-y: auto;
