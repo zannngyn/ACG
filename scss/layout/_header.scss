@@ -182,7 +182,7 @@
   }
 
   &__arrow {
-    margin-top: 3px;
+    margin-top: -3px;
 
     @include abstracts.screen(lg) {
       rotate: -90deg;
