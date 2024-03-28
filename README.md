@@ -1,4 +1,4 @@
-# ACG Official
+# Official
 
 Một dự án nhỏ từ các thành viên nhóm 9 học phần IT6055 HaUI <3
 Lần đầu tiên làm việc remote này là một trải nghiệm đáng quý và cũng là cơ hội để các thành viên học tập, trao đổi, trau dồi kiến thức.
