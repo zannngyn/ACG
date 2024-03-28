@@ -8,7 +8,7 @@ Một vài thông tin chi tiết:
 Dự án được quản lí, phân công cũng như kiểm tra tiến độ qua https://trello.com/b/VhgEO91z/sell-account
 
 # Nhóm tác giả:
-1. Đỗ Văn Hải - <br>
+1. Đỗ Văn Hải 2022602812- <br>
 2. Nguyễn Viết Minh Hoàng - <br>
 3. Nguyễn Hảo Hợp - 2022601884 <br>
 4. Nguyễn Hạnh Phúc - <br>
