@@ -9,7 +9,7 @@ Dự án được quản lí, phân công cũng như kiểm tra tiến độ qua
 
 # Nhóm tác giả:
 1. Đỗ Văn Hải - 2022602812<br>
-2. Nguyễn Viết Minh Hoàng - <br>
+2. Nguyễn Viết Minh Hoàng -2022600282 <br>
 3. Nguyễn Hảo Hợp - 2022601884 <br>
 4. Nguyễn Hạnh Phúc - 2022602103 <br>
 5. Nguyễn Thế Văn - 2022600297 <br>
