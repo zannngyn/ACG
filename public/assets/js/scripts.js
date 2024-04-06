@@ -228,3 +228,31 @@ window.addEventListener("template-loaded", () => {
 
 const isDark = localStorage.dark === "true";
 document.querySelector("html").classList.toggle("dark", isDark);
+
+// nhận onclick san phẩm yêu thích
+function fav_product(button) {
+    var product_id = button.getAttribute("data-product-id");
+
+    // Tạo một đối tượng XMLHttpRequest
+    var xhr = new XMLHttpRequest();
+
+    // Định nghĩa phương thức và URL của request
+    xhr.open("POST", "/user_favorite", true);
+
+    // Thiết lập header cho request
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    // Xử lý khi request được hoàn thành
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            // Xử lý phản hồi từ backend nếu cần
+            console.log(xhr.responseText);
+        }
+    };
+
+    // Tạo dữ liệu để gửi đến backend
+    var data = "product_id=" + product_id;
+
+    // Gửi request với dữ liệu đã tạo
+    xhr.send(data);
+}
