@@ -364,7 +364,7 @@ app.get("/sign_out", (req, res) => {
 });
 
 // tạo sản phẩm yêu thích mới
-app.post("user_favorite", async (req, res) => {
+app.post("/user_favorite", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
     const product_id = req.body.product_id;
