@@ -1,5 +1,29 @@
-const $ = document.querySelector.bind(document);
-const $$ = document.querySelectorAll.bind(document);
+// const $ = document.querySelector.bind(document);
+// const $$ = document.querySelectorAll.bind(document);
+// console.log($);
+// console.log($$);
+// console.log(document.querySelector);
+console.log("asdasda");
+function $(selector) {
+    return document.querySelector(selector);
+}
+
+function $$(selector) {
+    return document.querySelectorAll(selector);
+}
+// Định nghĩa biến templateLoadedEvent trong tệp script JavaScript
+const templateLoadedEvent = "template-loaded";
+
+// Sử dụng biến templateLoadedEvent để gửi sự kiện tới máy khách
+window.dispatchEvent(new Event(templateLoadedEvent));
+
+console.log(window.dispatchEvent(new Event("template-loaded")));
+console.log($$(".js-toggle"));
+
+// window.addEventListener("template-loaded", handleActiveMenu);
+// console.log(window.addEventListener("template-loaded", handleActiveMenu));
+
+
 
 /**
  * Hàm tải template
@@ -15,7 +39,7 @@ function load(selector, path) {
     if (cached) {
         $(selector).innerHTML = cached;
     }
-
+    // console.log(cached);
     fetch(path)
         .then((res) => res.text())
         .then((html) => {
@@ -149,8 +173,9 @@ function handleActiveMenu() {
 window.addEventListener("template-loaded", initJsToggle);
 
 function initJsToggle() {
+    // console.log($$(".js-toggle"));
     $$(".js-toggle").forEach((button) => {
-        console(88888888);
+        // console(88888888);
         const target = button.getAttribute("toggle-target");
         if (!target) {
             document.body.innerText = `Cần thêm toggle-target cho: ${button.outerHTML}`;
