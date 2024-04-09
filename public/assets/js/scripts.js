@@ -3,7 +3,7 @@
 // console.log($);
 // console.log($$);
 // console.log(document.querySelector);
-console.log("asdasda");
+// console.log("asdasda"); 
 function $(selector) {
     return document.querySelector(selector);
 }
@@ -12,13 +12,13 @@ function $$(selector) {
     return document.querySelectorAll(selector);
 }
 // Định nghĩa biến templateLoadedEvent trong tệp script JavaScript
-const templateLoadedEvent = "template-loaded";
+// const templateLoadedEvent = "template-loaded";
 
 // Sử dụng biến templateLoadedEvent để gửi sự kiện tới máy khách
-window.dispatchEvent(new Event(templateLoadedEvent));
+// window.dispatchEvent(new Event(templateLoadedEvent));
 
-console.log(window.dispatchEvent(new Event("template-loaded")));
-console.log($$(".js-toggle"));
+// console.log(window.dispatchEvent(new Event("template-loaded")));
+// console.log($$(".js-toggle"));
 
 // window.addEventListener("template-loaded", handleActiveMenu);
 // console.log(window.addEventListener("template-loaded", handleActiveMenu));
@@ -34,24 +34,24 @@ console.log($$(".js-toggle"));
  *  load("#parent", "./path-to-template.html");
  * </script>
  */
-function load(selector, path) {
-    const cached = localStorage.getItem(path);
-    if (cached) {
-        $(selector).innerHTML = cached;
-    }
-    // console.log(cached);
-    fetch(path)
-        .then((res) => res.text())
-        .then((html) => {
-            if (html !== cached) {
-                $(selector).innerHTML = html;
-                localStorage.setItem(path, html);
-            }
-        })
-        .finally(() => {
-            window.dispatchEvent(new Event("template-loaded"));
-        });
-}
+// function load(selector, path) {
+//     const cached = localStorage.getItem(path);
+//     if (cached) {
+//         $(selector).innerHTML = cached;
+//     }
+//     // console.log(cached);
+//     fetch(path)
+//         .then((res) => res.text())
+//         .then((html) => {
+//             if (html !== cached) {
+//                 $(selector).innerHTML = html;
+//                 localStorage.setItem(path, html);
+//             }
+//         })
+//         .finally(() => {
+//             window.dispatchEvent(new Event("template-loaded"));
+//         });
+// }
 
 /**
  * Hàm kiểm tra một phần tử
@@ -107,11 +107,22 @@ const calArrowPos = debounce(() => {
     });
 });
 
+// function drop_down() {
+//     if (isHidden($(".js-dropdown-list"))) return;
+
+//     const items = $$(".js-dropdown-list > li");
+
+//     items.forEach((item) => {
+//         const arrowPos = item.offsetLeft + item.offsetWidth / 2;
+//         item.style.setProperty("--arrow-left-pos", `${arrowPos}px`);
+//     });
+// }
+
 // Tính toán lại vị trí arrow khi resize trình duyệt
 window.addEventListener("resize", calArrowPos);
 
 // Tính toán lại vị trí arrow sau khi tải template
-window.addEventListener("template-loaded", calArrowPos);
+// window.addEventListener("template-loaded", calArrowPos);
 
 /**
  * Giữ active menu khi hover
@@ -121,7 +132,7 @@ window.addEventListener("template-loaded", calArrowPos);
  * 2. Thêm class "js-dropdown" vào class "dropdown" hiện tại
  *  nếu muốn reset lại item active khi ẩn menu
  */
-window.addEventListener("template-loaded", handleActiveMenu);
+window.addEventListener("mouseover", handleActiveMenu);
 
 function handleActiveMenu() {
     const dropdowns = $$(".js-dropdown");
@@ -163,6 +174,89 @@ function handleActiveMenu() {
     });
 }
 
+
+// function handleActiveMenu() {
+//     const dropdowns = $$(".js-dropdown");
+//     const menus = $$(".js-menu-list");
+//     const activeClass = "menu-column__item--active";
+
+//     const removeActive = (menu) => {
+//         menu.querySelector(`.${activeClass}`)?.classList.remove(activeClass);
+//     };
+
+//     const init = () => {
+//         menus.forEach((menu) => {
+//             const items = menu.children;
+//             if (!items.length) return;
+
+//             removeActive(menu);
+//             if (window.innerWidth > 991) items[0].classList.add(activeClass);
+
+//             Array.from(items).forEach((item) => {
+//                 item.onmouseenter = () => {
+//                     if (window.innerWidth <= 991) return;
+//                     removeActive(menu);
+//                     item.classList.add(activeClass);
+//                 };
+//                 item.onclick = () => {
+//                     if (window.innerWidth > 991) return;
+//                     removeActive(menu);
+//                     item.classList.add(activeClass);
+//                     item.scrollIntoView();
+//                 };
+//             });
+//         });
+//     };
+
+//     init();
+
+//     dropdowns.forEach((dropdown) => {
+//         dropdown.onmouseleave = () => init();
+//     });
+// }
+
+// var menus = document.getElementsByClassName(".js-dropdown");
+// console.log(menus);
+// menus.addEventListener("mouseover", function(){
+//     const dropdowns = $$(".js-dropdown");
+//     const menus = $$(".js-menu-list");
+//     const activeClass = "menu-column__item--active";
+
+//     const removeActive = (menu) => {
+//         menu.querySelector(`.${activeClass}`)?.classList.remove(activeClass);
+//     };
+
+//     const init = () => {
+//         menus.forEach((menu) => {
+//             const items = menu.children;
+//             if (!items.length) return;
+
+//             removeActive(menu);
+//             if (window.innerWidth > 991) items[0].classList.add(activeClass);
+
+//             Array.from(items).forEach((item) => {
+//                 item.onmouseenter = () => {
+//                     if (window.innerWidth <= 991) return;
+//                     removeActive(menu);
+//                     item.classList.add(activeClass);
+//                 };
+//                 item.onclick = () => {
+//                     if (window.innerWidth > 991) return;
+//                     removeActive(menu);
+//                     item.classList.add(activeClass);
+//                     item.scrollIntoView();
+//                 };
+//             });
+//         });
+//     };
+
+//     init();
+
+//     dropdowns.forEach((dropdown) => {
+//         dropdown.onmouseleave = () => init();
+//     });
+// })
+
 /**
  * JS toggle
  *
@@ -170,7 +264,7 @@ function handleActiveMenu() {
  * <button class="js-toggle" toggle-target="#box">Click</button>
  * <div id="box">Content show/hide</div>
  */
-window.addEventListener("template-loaded", initJsToggle);
+// window.addEventListener("template-loaded", initJsToggle);
 
 function initJsToggle() {
     // console.log($$(".js-toggle"));
@@ -204,56 +298,58 @@ function initJsToggle() {
     });
 }
 
-window.addEventListener("template-loaded", () => {
-    const links = $$(".js-dropdown-list > li > a");
+// window.addEventListener("template-loaded", () => {
+//     const links = $$(".js-dropdown-list > li > a");
 
-    links.forEach((link) => {
-        link.onclick = () => {
-            if (window.innerWidth > 991) return;
-            const item = link.closest("li");
-            item.classList.toggle("navbar__item--active");
-        };
-    });
-});
+//     links.forEach((link) => {
+//         link.onclick = () => {
+//             if (window.innerWidth > 991) return;
+//             const item = link.closest("li");
+//             item.classList.toggle("navbar__item--active");
+//         };
+//     });
+// });
 
-window.addEventListener("template-loaded", () => {
-    const tabsSelector = "prod-tab__item";
-    const contentsSelector = "prod-tab__content";
+// window.addEventListener("template-loaded", () => {
+//     const tabsSelector = "prod-tab__item";
+//     const contentsSelector = "prod-tab__content";
 
-    const tabActive = `${tabsSelector}--current`;
-    const contentActive = `${contentsSelector}--current`;
+//     const tabActive = `${tabsSelector}--current`;
+//     const contentActive = `${contentsSelector}--current`;
 
-    const tabContainers = $$(".js-tabs");
-    tabContainers.forEach((tabContainer) => {
-        const tabs = tabContainer.querySelectorAll(`.${tabsSelector}`);
-        const contents = tabContainer.querySelectorAll(`.${contentsSelector}`);
-        tabs.forEach((tab, index) => {
-            tab.onclick = () => {
-                tabContainer.querySelector(`.${tabActive}`)?.classList.remove(tabActive);
-                tabContainer.querySelector(`.${contentActive}`)?.classList.remove(contentActive);
-                tab.classList.add(tabActive);
-                contents[index].classList.add(contentActive);
-            };
-        });
-    });
-});
+//     const tabContainers = $$(".js-tabs");
+//     tabContainers.forEach((tabContainer) => {
+//         const tabs = tabContainer.querySelectorAll(`.${tabsSelector}`);
+//         const contents = tabContainer.querySelectorAll(`.${contentsSelector}`);
+//         tabs.forEach((tab, index) => {
+//             tab.onclick = () => {
+//                 tabContainer.querySelector(`.${tabActive}`)?.classList.remove(tabActive);
+//                 tabContainer.querySelector(`.${contentActive}`)?.classList.remove(contentActive);
+//                 tab.classList.add(tabActive);
+//                 contents[index].classList.add(contentActive);
+//             };
+//         });
+//     });
+// });
 
-window.addEventListener("template-loaded", () => {
-    const switchBtn = document.querySelector("#switch-theme-btn");
-    if (switchBtn) {
-        switchBtn.onclick = function () {
+// window.addEventListener("template-loaded", () => {
+//     const switchBtn = document.querySelector("#switch-theme-btn");
+//     if (switchBtn) {
+//         switchBtn.onclick = 
+
+        function theme_color() {
             const isDark = localStorage.dark === "true";
             document.querySelector("html").classList.toggle("dark", !isDark);
             localStorage.setItem("dark", !isDark);
             switchBtn.querySelector("span").textContent = isDark ? "Dark mode" : "Light mode";
         };
-        const isDark = localStorage.dark === "true";
-        switchBtn.querySelector("span").textContent = isDark ? "Light mode" : "Dark mode";
-    }
-});
+//         const isDark = localStorage.dark === "true";
+//         switchBtn.querySelector("span").textContent = isDark ? "Light mode" : "Dark mode";
+//     }
+// });
 
-const isDark = localStorage.dark === "true";
-document.querySelector("html").classList.toggle("dark", isDark);
+// const isDark = localStorage.dark === "true";
+// document.querySelector("html").classList.toggle("dark", isDark);
 
 // nhận onclick san phẩm yêu thích
 function fav_product(button) {
