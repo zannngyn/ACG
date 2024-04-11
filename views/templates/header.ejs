@@ -1025,7 +1025,7 @@
                 alt=""
                 class="icon top-act__icon"
               />
-              <span class="top-act__title">$65.42</span>
+              <span class="top-act__title">$<%= price %></span>
             </button>
   
             <!-- Dropdown -->
@@ -1046,60 +1046,28 @@
                 </div>
                 <div class="row row-cols-3 gx-2 act-dropdown__list">
                   <!-- Cart preview item 1 -->
-                  <div class="col">
-                    <article class="cart-preview-item">
-                      <div class="cart-preview-item__img-wrap">
-                        <img
-                          src="./assets/img/product/item-1.png"
-                          alt=""
-                          class="cart-preview-item__thumb"
-                        />
-                      </div>
-                      <h3 class="cart-preview-item__title">
-                        Lavazza Coffee Blends
-                      </h3>
-                      <p class="cart-preview-item__price">$329.00</p>
-                    </article>
-                  </div>
-  
-                  <!-- Cart preview item 2 -->
-                  <div class="col">
-                    <article class="cart-preview-item">
-                      <div class="cart-preview-item__img-wrap">
-                        <img
-                          src="./assets/img/product/item-2.png"
-                          alt=""
-                          class="cart-preview-item__thumb"
-                        />
-                      </div>
-                      <h3 class="cart-preview-item__title">
-                        Coffee Beans Espresso
-                      </h3>
-                      <p class="cart-preview-item__price">$39.99</p>
-                    </article>
-                  </div>
-  
-                  <!-- Cart preview item 3 -->
-                  <div class="col">
-                    <article class="cart-preview-item">
-                      <div class="cart-preview-item__img-wrap">
-                        <img
-                          src="./assets/img/product/item-3.png"
-                          alt=""
-                          class="cart-preview-item__thumb"
-                        />
-                      </div>
-                      <h3 class="cart-preview-item__title">
-                        Qualità Oro Mountain
-                      </h3>
-                      <p class="cart-preview-item__price">$47.00</p>
-                    </article>
-                  </div>
+                  <% for(i = 0; i < fav_product_id.length; i++) {%>
+                    <div class="col">
+                      <article class="cart-preview-item">
+                        <div class="cart-preview-item__img-wrap">
+                          <img
+                            src="<%= fav_product_img[i] %>"
+                            alt=""
+                            class="cart-preview-item__thumb"
+                          />
+                        </div>
+                        <h3 class="cart-preview-item__title">
+                          Lavazza Coffee Blends
+                        </h3>
+                        <p class="cart-preview-item__price">$329.00</p>
+                      </article>
+                    </div>
+                  <% } %>
                 </div>
                 <div class="act-dropdown__bottom">
                   <div class="act-dropdown__row">
                     <span class="act-dropdown__label">Tổng</span>
-                    <span class="act-dropdown__value">$415.99</span>
+                    <span class="act-dropdown__value">$<%= price %></span>
                   </div>
                   <div class="act-dropdown__row">
                     <span class="act-dropdown__label">VAT</span>
@@ -1107,11 +1075,11 @@
                   </div>
                   <div class="act-dropdown__row">
                     <span class="act-dropdown__label">Giảm giá</span>
-                    <span class="act-dropdown__value">$10.00</span>
+                    <span class="act-dropdown__value">$0.00</span>
                   </div>
                   <div class="act-dropdown__row act-dropdown__row--bold">
                     <span class="act-dropdown__label">Tất toán</span>
-                    <span class="act-dropdown__value">$425.99</span>
+                    <span class="act-dropdown__value">$<%= price %></span>
                   </div>
                 </div>
                 <div class="act-dropdown__checkout">

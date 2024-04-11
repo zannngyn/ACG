@@ -7,8 +7,6 @@ import { Strategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2"
 import session from "express-session";
 import env from "dotenv";
-// import jsdom from "jsdom";
-// const { JSDOM } = jsdom;
 
 
 // sử dụng express, tạo cổng, tạo số lần sử dụng bcrypt, kết nối .evn
@@ -122,6 +120,23 @@ async function checkITEM(item) {
   return [menuID, menuIMG, menuNAME, menuPRICE, menuREALPRICE];
 };
 
+//kiểm tra tổng giá trị sản phẩm
+async function checkPRICE(fav_product_id) {
+  let PRICE = 0;
+
+  for (let i = 0; i < fav_product_id.length; i++) {
+    const fav_product = fav_product_id[i];
+    const result = await db.query("SELECT menuprice FROM menu WHERE menuid = $1", [fav_product]);
+    let menuPRICE = []
+    result.rows.forEach((price) => {
+      menuPRICE.push(price.menuprice);
+    });
+    PRICE = PRICE + menuPRICE[0];
+  };
+  
+  return PRICE;
+}
+
 // đưa ra menu chính
 app.get("/", async (req, res) => {
 
@@ -144,6 +159,7 @@ app.get("/", async (req, res) => {
     // lấy ra thông tin chi tiết sản phẩm yêu thích
     const [fav_product_id,] = await checkUSER_fav(id, menuIMG);
     const [,fav_product_img] = await checkUSER_fav(id, menuIMG);
+    const price = await checkPRICE(fav_product_id);
 
       res.render("index.ejs", {
         menu_id: menuID,
@@ -157,6 +173,7 @@ app.get("/", async (req, res) => {
         picture: picture,
         fav_product_id: fav_product_id,
         fav_product_img: fav_product_img,
+        price: price,
       });
 
   } else {
