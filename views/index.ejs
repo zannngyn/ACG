@@ -177,7 +177,7 @@
                 class="filter__arrow"
               />
               <h3 class="filter__heading">Bộ lọc</h3>
-              <form action="" class="filter__form form">
+              <form action="/" class="filter__form form" method="POST">
                 <div class="filter__row filter__content">
                   <!-- Filter column 1 -->
                   <div class="filter__col">
@@ -197,11 +197,11 @@
                           class="filter__form-text-input filter__form-text-input--small"
                         >
                           <input
-                            type="text"
-                            name=""
+                            type="number"
+                            name="price_min"
                             id=""
                             class="filter__form-input"
-                            value="$30.00"
+                            placeholder="$15.00"
                           />
                         </div>
                       </div>
@@ -213,11 +213,11 @@
                           class="filter__form-text-input filter__form-text-input--small"
                         >
                           <input
-                            type="text"
-                            name=""
+                            type="number"
+                            name="price_max"
                             id=""
                             class="filter__form-input"
-                            value="$100.00"
+                            placeholder="$100.00"
                           />
                         </div>
                       </div>

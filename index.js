@@ -133,13 +133,12 @@ async function checkPRICE(fav_product_id) {
     });
     PRICE = PRICE + menuPRICE[0];
   };
-  
+
   return PRICE;
 }
 
 // đưa ra menu chính
 app.get("/", async (req, res) => {
-
   // lấy thông tin chi tiết sản phẩm 
   const [menuID,,,,] =await checkMENU();
   const [,menuIMG,,,] = await checkMENU();
@@ -382,6 +381,14 @@ app.get("/sign_out", (req, res) => {
     res.redirect("/");
   });
 });
+
+app.post("/", async (req,res) => {
+  const pirce_min = req.body.price_min;
+  const price_max = req.body.price_max;
+  console.log(pirce_min);
+  console.log(price_max);
+  res.redirect("/");
+})
 
 // tạo sản phẩm yêu thích mới
 app.post("/user_favorite", async (req, res) => {
