@@ -29,6 +29,12 @@ app.get("/checkout", async (req, res) => {
       });
 })
 
+app.get("/delivery", async (req, res) => {
+    res.render("delivery.ejs", {
+        check: false,
+    })
+})
+
 app.get("/payment", async (req, res) => {
     res.render("payment.ejs", {
         check: false,
