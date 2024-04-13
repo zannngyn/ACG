@@ -181,6 +181,11 @@
     }
   }
 
+  &__link:hover {
+    font-weight: 900;
+    transition: 0.5s;
+  }
+
   &__arrow {
     margin-top: -3px;
 
