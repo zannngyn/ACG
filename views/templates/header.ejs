@@ -13,7 +13,7 @@
     </button>
 
     <!-- Logo -->
-    <a href="index-logined.html" class="logo top-bar__logo">
+    <a href="/" class="logo top-bar__logo">
       <img
         src="./assets/icons/logo.png"
         alt="didong2tech"
@@ -28,7 +28,7 @@
         <img class="icon" src="./assets/icons/arrow-left.svg" alt="" />
       </button>
 
-      <a href="./checkout.html" class="nav-btn d-none d-md-flex">
+      <a href="/checkout" class="nav-btn d-none d-md-flex">
         <img src="./assets/icons/buy.svg" alt="" class="nav-btn__icon icon" />
         <span class="nav-btn__title">Cart</span>
         <span class="nav-btn__qnt">3</span>
@@ -931,7 +931,7 @@
           </div>
         </li>
         <li class="navbar__item">
-          <a href="./updates.html" class="navbar__link">
+          <a href="/updates" class="navbar__link">
             KHUYẾN MÃI
           </a>
         </li>
@@ -945,11 +945,217 @@
     <div class="navbar__overlay js-toggle" toggle-target="#navbar"></div>
 
     <!-- Actions -->
+    <% if(check) { %>
+      <div class="top-act">
+        <div class="top-act__group d-md-none top-act__group--single">
+          <button class="top-act__btn">
+            <img
+              src="./assets/icons/search.svg"
+              alt=""
+              class="icon top-act__icon"
+            />
+          </button>
+        </div>
+  
+        <div class="top-act__group d-md-none">
+          <div class="top-act__btn-wrap">
+            <button class="top-act__btn">
+              <img
+                src="./assets/icons/heart.svg"
+                alt=""
+                class="icon top-act__icon"
+              />
+              <span class="top-act__title"><%= fav_product_id.length %></span>
+            </button>
+  
+            <!-- Dropdown -->
+            <div class="act-dropdown">
+              <div class="act-dropdown__inner">
+                <img
+                  src="./assets/icons/arrow-up.png"
+                  alt=""
+                  class="act-dropdown__arrow"
+                />
+                <div class="act-dropdown__top">
+                  <h2 class="act-dropdown__title">
+                    Sản phẩm đã thích: <%= fav_product_id.length %>
+                  </h2>
+                  <a href="/favourite" class="act-dropdown__view-all"
+                    >Xem chi tiết</a
+                  >
+                </div>
+                <div class="row row-cols-3 gx-2 act-dropdown__list">
+                  <!-- Cart preview item -->
+                  <% for(i = 0; i < fav_product_id.length; i++) {%>
+                    <div class="col">
+                      <article class="cart-preview-item">
+                        <div class="cart-preview-item__img-wrap">
+                          <img
+                            src="<%= fav_product_img[i] %>"
+                            alt=""
+                            class="cart-preview-item__thumb"
+                          />
+                        </div>
+                        <h3 class="cart-preview-item__title">
+                          Lavazza Coffee Blends
+                        </h3>
+                        <p class="cart-preview-item__price">$329.00</p>
+                      </article>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="act-dropdown__separate"></div>
+                <div class="act-dropdown__checkout">
+                  <a
+                    href="/checkout"
+                    class="btn btn--primary btn--rounded act-dropdown__checkout-btn">
+                    Thanh toán
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <div class="top-act__separate"></div>
+  
+          <div class="top-act__btn-wrap">
+            <button class="top-act__btn">
+              <img
+                src="./assets/icons/buy.svg"
+                alt=""
+                class="icon top-act__icon"
+              />
+              <span class="top-act__title">$<%= price %></span>
+            </button>
+  
+            <!-- Dropdown -->
+            <div class="act-dropdown">
+              <div class="act-dropdown__inner">
+                <img
+                  src="./assets/icons/arrow-up.png"
+                  alt=""
+                  class="act-dropdown__arrow"
+                />
+                <div class="act-dropdown__top">
+                  <h2 class="act-dropdown__title">
+                    Bạn đã thêm 3 sản phẩm vào giỏ hàng
+                  </h2>
+                  <a href="/checkout" class="act-dropdown__view-all"
+                    >Chi tiết</a
+                  >
+                </div>
+                <div class="row row-cols-3 gx-2 act-dropdown__list">
+                  <!-- Cart preview item 1 -->
+                  <% for(i = 0; i < fav_product_id.length; i++) {%>
+                    <div class="col">
+                      <article class="cart-preview-item">
+                        <div class="cart-preview-item__img-wrap">
+                          <img
+                            src="<%= fav_product_img[i] %>"
+                            alt=""
+                            class="cart-preview-item__thumb"
+                          />
+                        </div>
+                        <h3 class="cart-preview-item__title">
+                          Lavazza Coffee Blends
+                        </h3>
+                        <p class="cart-preview-item__price">$329.00</p>
+                      </article>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="act-dropdown__bottom">
+                  <div class="act-dropdown__row">
+                    <span class="act-dropdown__label">Tổng</span>
+                    <span class="act-dropdown__value">$<%= price %></span>
+                  </div>
+                  <div class="act-dropdown__row">
+                    <span class="act-dropdown__label">VAT</span>
+                    <span class="act-dropdown__value">Free</span>
+                  </div>
+                  <div class="act-dropdown__row">
+                    <span class="act-dropdown__label">Giảm giá</span>
+                    <span class="act-dropdown__value">$0.00</span>
+                  </div>
+                  <div class="act-dropdown__row act-dropdown__row--bold">
+                    <span class="act-dropdown__label">Tất toán</span>
+                    <span class="act-dropdown__value">$<%= price %></span>
+                  </div>
+                </div>
+                <div class="act-dropdown__checkout">
+                  <a
+                    href="/checkout"
+                    class="btn btn--primary btn--rounded act-dropdown__checkout-btn"
+                  >
+                    Thanh toán
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <div class="top-act__user">
+          <img src="<%= picture %>" alt="" class="top-act__avatar" />
+  
+          <!-- Dropdown -->
+          <div class="act-dropdown top-act__dropdown">
+            <div class="act-dropdown__inner user-menu">
+              <img
+                src="./assets/icons/arrow-up.png"
+                alt=""
+                class="act-dropdown__arrow top-act__dropdown-arrow"
+              />
+  
+              <div class="user-menu__top">
+                <img
+                  src="<%= picture %>"
+                  alt=""
+                  class="user-menu__avatar"
+                />
+                <div>
+                  <p class="user-menu__name"><%= user_name %></p>
+                  <p><%= email %></p>
+                </div>
+              </div>
+  
+              <ul class="user-menu__list">
+                <li>
+                  <a href="./profile.html" class="user-menu__link">Hồ sơ</a>
+                </li>
+                <li>
+                  <a href="./favourite.html" class="user-menu__link"
+                    >Sản phẩm đã thích</a
+                  >
+                </li>
+                <li class="user-menu__separate">
+                  <a href="#!" class="user-menu__link" id="switch-theme-btn" onclick="theme_color()">
+                    <span>Dark mode</span>
+                    <img
+                      src="./assets/icons/sun.svg"
+                      alt=""
+                      class="icon user-menu__icon"
+                    />
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" class="user-menu__link">Cài đặt</a>
+                </li>
+                <li class="user-menu__separate">
+                  <a href="/sign_out" class="user-menu__link">Đăng xuất</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% } else { %>
     <div class="top-act">
-      <a href="./sign-in.html" class="btn btn--text d-md-none">ĐĂNG NHẬP</a>
-      <a href="./sign-up.html" class="top-act__sign-up btn btn--primary"
+      <a href="/sign_in" class="btn btn--text d-md-none">ĐĂNG NHẬP</a>
+      <a href="/sign_up" class="top-act__sign-up btn btn--primary"
         >ĐĂNG KÝ</a
       >
     </div>
+    <% } %>
   </div>
 </div>

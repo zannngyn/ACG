@@ -94,10 +94,7 @@
   </head>
   <body>
     <!-- Header -->
-    <header id="header" class="header"></header>
-    <script>
-      load("#header", "./templates/header-logined.html");
-    </script>
+    <%- include("./templates/header.ejs") %>
 
     <!-- MAIN -->
     <main class="product-page">
@@ -159,28 +156,28 @@
                 <div class="prod-preview__list">
                   <div class="prod-preview__item">
                     <img
-                      src="./assets/img/product/item.jpg"
+                      src="<%= menu_img %>"
                       alt=""
                       class="prod-preview__img"
                     />
                   </div>
                   <div class="prod-preview__item">
                     <img
-                      src="./assets/img/product/item.jpg"
+                      src="<%= menu_img %>"
                       alt=""
                       class="prod-preview__img"
                     />
                   </div>
                   <div class="prod-preview__item">
                     <img
-                      src="./assets/img/product/item.jpg"
+                      src="<%= menu_img %>"
                       alt=""
                       class="prod-preview__img"
                     />
                   </div>
                   <div class="prod-preview__item">
                     <img
-                      src="./assets/img/product/item.jpg"
+                      src="<%= menu_img %>"
                       alt=""
                       class="prod-preview__img"
                     />
@@ -188,22 +185,22 @@
                 </div>
                 <div class="prod-preview__thumbs">
                   <img
-                    src="./assets/img/product/item.jpg"
+                    src="<%= menu_img %>"
                     alt=""
                     class="prod-preview__thumb-img prod-preview__thumb-img--current"
                   />
                   <img
-                    src="./assets/img/product/item.jpg"
+                    src="<%= menu_img %>"
                     alt=""
                     class="prod-preview__thumb-img"
                   />
                   <img
-                    src="./assets/img/product/item.jpg"
+                    src="<%= menu_img %>"
                     alt=""
                     class="prod-preview__thumb-img"
                   />
                   <img
-                    src="./assets/img/product/item.jpg"
+                    src="<%= menu_img %>"
                     alt=""
                     class="prod-preview__thumb-img"
                   />
@@ -214,7 +211,7 @@
               <form action="" class="form">
                 <section class="prod-info">
                   <h1 class="prod-info__heading">
-                    account
+                    <%= menu_name %>
                   </h1>
                   <div class="row">
                     <div class="col-5 col-xxl-6 col-xl-12">
@@ -263,6 +260,7 @@
             </div>
           </div>
         </div>
+
 
         <!-- Product content -->
         <div class="product-container">
@@ -815,9 +813,6 @@
     </main>
 
     <!-- Footer -->
-    <footer id="footer" class="footer"></footer>
-    <script>
-      load("#footer", "./templates/footer.html");
-    </script>
+    <%- include("./templates/footer.ejs") %>
   </body>
 </html>
