@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="./public/css/webAdmin.css">
-
+    <link rel="stylesheet" href="./public/assets/css/webAdmin.css">
 </head>
 <body>
     <div class="admin-header">
@@ -14,10 +13,10 @@
         </div> 
         <div class="right-panel">
             <a href="#">
-                <img src="./public/img/webadmin/house.png" alt="" class="icon">Trang chủ
+                <img src="./public/assets/img/webadmin/house.png" alt="" class="icon">Trang chủ
             </a>
             <a href="#">
-                <img src="./public/img/webadmin/logout.png" alt="" class="icon">Đăng xuất
+                <img src="./public/assets/img/webadmin/logout.png" alt="" class="icon">Đăng xuất
             </a>
         </div>
     </div>
@@ -65,7 +64,7 @@
                             <td class="button-column"><input type="button" value="Hủy"></td>
                             <td class="button-column"><input type="button" value="Đồng ý"></td>
                         </tr>
-                </table>
+                    </table>
                 </div>
                 <div class="product-items">
                     <ul>
@@ -162,9 +161,9 @@
                         <td class="button-column"><input type="button" value="Hủy"></td>
                         <td class="button-column"><input type="button" value="Đồng ý"></td>
                     </tr>
-            </table>
+                </table>
             </div>
-                <div class="product-items">
+            <div class="product-items">
                 <ul>
                     <li class="product-items-heading">
                         <div class="pro">Ảnh</div>
@@ -225,5 +224,23 @@
             </div>
         </div>
     </div>
+    <script>
+        function ProTable_Dathang() {
+            var productTable = document.getElementById("product-table-hang");
+            if (productTable.style.display = "none") {
+                productTable.style.display = "block";
+            } else {
+                productTable.style.display = "none";
+            }
+        }        
+        function ProTable_Tonkho() {
+            var proTable = document.getElementById("product-table-ton");
+            if (proTable.style.display = "none") {
+                proTable.style.display = "block";
+            } else {
+                proTable.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>
