@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./public/css/webAdmin.css">
+
+</head>
+<body>
+    <div class="admin-header">
+        <div class="left-panel">
+            <p>Xin Chào <span>Admin</span></p>
+        </div> 
+        <div class="right-panel">
+            <a href="#">
+                <img src="./public/img/webadmin/house.png" alt="" class="icon">Trang chủ
+            </a>
+            <a href="#">
+                <img src="./public/img/webadmin/logout.png" alt="" class="icon">Đăng xuất
+            </a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="container">
+            <div class="left-menu">
+                <div class="menu-heading">Admin menu</div>
+                <div class="menu-items">
+                    <ul>
+                        <li><a href="#">Tin tức</a></li>
+                        <li><a href="#main-content-donhang">Đơn Hàng</a></li>
+                        <li><a href="#main-content-tonkho">Hàng Tồn</a></li>
+                        <li><a href="#">Danh sách mail được nhận ưu đãi</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="main-content-donhang">
+                <h1 class="card-h1">Danh sách sản phẩm đơn hàng</h1>
+                <div class="product-items">
+                    <div class="buttons">
+                        <a href="#" onclick="ProTable_Dathang()">Thêm sản phẩm</a>
+                    </div>
+                </div>
+                <div id="product-table-hang" class="product-table-hang">
+                    <table class="prot">
+                        <tr class="tr1">
+                            <td>Ảnh</td>
+                            <td>ID</td>
+                            <td>Tên sản phẩm</td>
+                            <td>Loại sản phẩm</td>
+                            <td>Giá</td>
+                            <td>Ngày đặt</td>
+                            <td>Mô tả</td>
+                            <td>Hủy</td>
+                            <td>Đồng ý</td>
+                        </tr>
+                        <tr>
+                            <td><input type="file" name="image_upload_1"></td>
+                            <td><input type="text" name="id_1" value="1"></td>
+                            <td><input type="text" name="product_name_1" value="Product 1"></td>
+                            <td><input type="text" name="product_type_1" value="Type 1"></td>
+                            <td><input type="text" name="price_1" value="$100"></td>
+                            <td><input type="text" name="description_1" value="Description of product 1"></td>
+                            <td><input type="text" name="date_1" value="01/01/2024"></td>
+                            <td class="button-column"><input type="button" value="Hủy"></td>
+                            <td class="button-column"><input type="button" value="Đồng ý"></td>
+                        </tr>
+                </table>
+                </div>
+                <div class="product-items">
+                    <ul>
+                        <li class="product-items-heading">
+                            <div class="pro">Ảnh</div>
+                            <div class="pro">ID</div>
+                            <div class="pro">Tên sản phẩm</div>
+                            <div class="pro">Loại sản phẩm</div>
+                            <div class="pro">Giá</div>
+                            <div class="pro">Mô tả</div>
+                            <div class="pro">Ngày đặt</div>
+                            <div class="pro">Sửa</div>
+                            <div class="pro">Xóa</div>
+                            <div class="pro">Copy</div>
+                        </li>
+                        <li class="product-item">
+                            <img src="https://i.ibb.co/qdYVXbC/0019801-black-550.jpg" alt="">
+                            <div class="prod">ID</div>
+                            <div class="prod">Iphone 15</div>
+                            <div class="prod">Iphone</div>
+                            <div class="prod">19890000</div>
+                            <div class="prod">Mô tả</div>
+                            <div class="prod">01/20/2024</div>
+                            <div class="prod"><a href="#">Sửa</a></div>
+                            <div class="prod"><a href="#">Xóa</a></div>
+                            <div class="prod"><a href="#">Copy</a></div>
+                        </li>
+                        <li class="product-item">
+                            <img src="https://i.ibb.co/yqnwtW9/0019802-black-550.jpg" alt="">
+                            <div class="prod">ID</div>
+                            <div class="prod">Iphone 15</div>
+                            <div class="prod">Iphone</div>
+                            <div class="prod">19890000</div>
+                            <div class="prod">Mô tả</div>
+                            <div class="prod">03/22/2024</div>
+                            <div class="prod"><a href="#">Sửa</a></div>
+                            <div class="prod"><a href="#">Xóa</a></div>
+                            <div class="prod"><a href="#">Copy</a></div>
+                        </li>
+                        <li class="product-item">
+                            <img src="https://i.ibb.co/qdYVXbC/0019801-black-550.jpg" alt="">
+                            <div class="prod">ID</div>
+                            <div class="prod">Iphone 15 plus</div>
+                            <div class="prod">Iphone</div>
+                            <div class="prod">22890000</div>
+                            <div class="prod">Mô tả</div>
+                            <div class="prod">02/20/2024</div>
+                            <div class="prod"><a href="#">Sửa</a></div>
+                            <div class="prod"><a href="#">Xóa</a></div>
+                            <div class="prod"><a href="#">Copy</a></div>
+                        </li>
+                        <li class="product-item">
+                            <img src="https://i.ibb.co/B35hc7s/0019566-titan-xanh-550.jpg" alt="">
+                            <div class="prod">ID</div>
+                            <div class="prod">Iphone 15 pro</div>
+                            <div class="prod">Iphone</div>
+                            <div class="prod">25450000</div>
+                            <div class="prod">Mô tả</div>
+                            <div class="prod">01/01/2024</div>
+                            <div class="prod"><a href="#">Sửa</a></div>
+                            <div class="prod"><a href="#">Xóa</a></div>
+                            <div class="prod"><a href="#">Copy</a></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="main-content-tonkho">
+            <h1 class="card-h1">Danh sách sản phẩm tồn kho</h1>
+            <div class="product-items">
+                <div class="buttons">
+                    <a href="#" onclick="ProTable_Tonkho()">Thêm sản phẩm</a>
+                </div>
+            </div>
+            <div id="product-table-ton" class="product-table-ton">
+                <table class="prot">
+                    <tr class="tr1">
+                        <td>Ảnh</td>
+                        <td>ID</td>
+                        <td>Tên sản phẩm</td>
+                        <td>Loại sản phẩm</td>
+                        <td>Giá</td>
+                        <td>Mô tả</td>
+                        <td>Hủy</td>
+                        <td>Đồng ý</td>
+                    </tr>
+                    <tr>
+                        <td><input type="file" name="image_upload_1"></td>
+                        <td><input type="text" name="id_1" value="1"></td>
+                        <td><input type="text" name="product_name_1" value="Product 1"></td>
+                        <td><input type="text" name="product_type_1" value="Type 1"></td>
+                        <td><input type="text" name="price_1" value="$100"></td>
+                        <td><input type="text" name="description_1" value="Description of product 1"></td>
+                        <td class="button-column"><input type="button" value="Hủy"></td>
+                        <td class="button-column"><input type="button" value="Đồng ý"></td>
+                    </tr>
+            </table>
+            </div>
+                <div class="product-items">
+                <ul>
+                    <li class="product-items-heading">
+                        <div class="pro">Ảnh</div>
+                        <div class="pro">ID</div>
+                        <div class="pro">Tên sản phẩm</div>
+                        <div class="pro">Loại sản phẩm</div>
+                        <div class="pro">Giá</div>
+                        <div class="pro">Mô tả</div>
+                        <div class="pro">Sửa</div>
+                        <div class="pro">Xóa</div>
+                        <div class="pro">Copy</div>
+                    </li>
+                    <li class="product-item">
+                        <img src="https://i.ibb.co/qdYVXbC/0019801-black-550.jpg" alt="">
+                        <div class="prod">ID</div>
+                        <div class="prod">Iphone 15</div>
+                        <div class="prod">Iphone</div>
+                        <div class="prod">19890000</div>
+                        <div class="prod">Mô tả</div>
+                        <div class="prod"><a href="#">Sửa</a></div>
+                        <div class="prod"><a href="#">Xóa</a></div>
+                        <div class="prod"><a href="#">Copy</a></div>
+                    </li>
+                    <li class="product-item">
+                        <img src="https://i.ibb.co/yqnwtW9/0019802-black-550.jpg" alt="">
+                        <div class="prod">ID</div>
+                        <div class="prod">Iphone 15</div>
+                        <div class="prod">Iphone</div>
+                        <div class="prod">19890000</div>
+                        <div class="prod">Mô tả</div>
+                        <div class="prod"><a href="#">Sửa</a></div>
+                        <div class="prod"><a href="#">Xóa</a></div>
+                        <div class="prod"><a href="#">Copy</a></div>
+                    </li>
+                    <li class="product-item">
+                        <img src="https://i.ibb.co/qdYVXbC/0019801-black-550.jpg" alt="">
+                        <div class="prod">ID</div>
+                        <div class="prod">Iphone 15 plus</div>
+                        <div class="prod">Iphone</div>
+                        <div class="prod">22890000</div>
+                        <div class="prod">Mô tả</div>
+                        <div class="prod"><a href="#">Sửa</a></div>
+                        <div class="prod"><a href="#">Xóa</a></div>
+                        <div class="prod"><a href="#">Copy</a></div>
+                    </li>
+                    <li class="product-item">
+                        <img src="https://i.ibb.co/B35hc7s/0019566-titan-xanh-550.jpg" alt="">
+                        <div class="prod">ID</div>
+                        <div class="prod">Iphone 15 pro</div>
+                        <div class="prod">Iphone</div>
+                        <div class="prod">25450000</div>
+                        <div class="prod">Mô tả</div>
+                        <div class="prod"><a href="#">Sửa</a></div>
+                        <div class="prod"><a href="#">Xóa</a></div>
+                        <div class="prod"><a href="#">Copy</a></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
