@@ -94,11 +94,7 @@
   </head>
   <body>
     <!-- Header -->
-    <header id="header" class="header"></header>
-    <script>
-      load("#header", "./templates/header-logined.html");
-    </script>
-
+    <%- include("./templates/header.ejs") %>
     <!-- MAIN -->
     <main class="checkout-page">
       <div class="container">
@@ -418,9 +414,7 @@
 
     <!-- Footer -->
     <footer id="footer" class="footer"></footer>
-    <script>
-      load("#footer", "./templates/footer.html");
-    </script>
+    <%- include("./templates/footer.ejs") %>
 
     <!-- Modal: confirm remove shopping cart item -->
     <div id="delete-confirm" class="modal modal--small hide">

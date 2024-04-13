@@ -94,10 +94,7 @@
   </head>
   <body>
     <!-- Header -->
-    <header id="header" class="header"></header>
-    <script>
-      load("#header", "./templates/header-logined.html");
-    </script>
+    <%- include("./templates/header.ejs") %>
 
     <!-- MAIN -->
     <main class="checkout-page">
@@ -398,7 +395,7 @@
                   <span>$201.65</span>
                 </div>
                 <a
-                  href="delivery.html"
+                  href="delivery"
                   class="cart-info__next-btn btn btn--primary btn--rounded"
                 >
                   Thanh toán
@@ -411,10 +408,7 @@
     </main>
 
     <!-- Footer -->
-    <footer id="footer" class="footer"></footer>
-    <script>
-      load("#footer", "./templates/footer.html");
-    </script>
+    <%- include("./templates/footer.ejs") %>
 
     <!-- Modal: confirm remove shopping cart item -->
     <div id="delete-confirm" class="modal modal--small hide">
