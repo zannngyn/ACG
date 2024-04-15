@@ -275,18 +275,18 @@
 
         <div class="row row-cols-3 row-cols-lg-2 row-cols-sm-1 g-2">
           <!-- Product card -->
-          <% for(i = 0; i < menu_id.length; i++) { %>
+          <% for(i = 0; i < product_id.length && i < 9; i++) { %>
             <div class="col">
               <article class="product-card">
                 <div class="product-card__img-wrap">
-                  <a href="/product_detail?id= <%= menu_id[i] %>" >
+                  <a href="/product_detail?id= <%= product_id[i] %>" >
                     <img
-                      src="<%= menu_img[i] %>"
+                      src="<%= product_img[i] %>"
                       alt=""
                       class="product-card__thumb"
                     />
                   </a>
-                  <button class="like-btn product-card__like-btn" data-product-id="<%= menu_id[i] %>" onclick="fav_product(this)">
+                  <button class="like-btn product-card__like-btn" data-product-id="<%= product_id[i] %>" onclick="fav_product(this)">
                     <img
                       src="./assets/icons/heart.svg"
                       alt=""
@@ -300,13 +300,13 @@
                   </button>
                 </div>
                 <h3 class="product-card__title">
-                  <a href="/product_detail?id=<%= menu_id[i] %>"
-                    ><%= menu_name[i] %></a
+                  <a href="/product_detail?id=<%= product_id[i] %>"
+                    ><%= product_name[i] %></a
                   >
                 </h3>
-                <p class="product-card__brand">Lavazza</p>
+                <p class="product-card__brand"><%= product_brand[i] %></p>
                 <div class="product-card__row">
-                  <span class="product-card__price">$<%= menu_price[i] %></span>
+                  <span class="product-card__price">$<%= product_price[i] %></span>
                   <img
                     src="./assets/icons/star.svg"
                     alt=""

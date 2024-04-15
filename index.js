@@ -46,39 +46,40 @@ const db = new pg.Client({
 db.connect();
 
 //kiểm tra sản phẩm trong cơ sở dữ liệu
-async function checkMENU() {
-  const result = await db.query("SELECT *  FROM menu");
-  let menuIMG = [];
-  let menuNAME =[];
-  let menuPRICE = [];
-  let menuREALPRICE = [];
-  let menuID =[];
+async function checkPRODUCT() {
+  const result = await db.query("SELECT *  FROM product");
+  let productID =[];
+  let productIMG = [];
+  let productBRAND = [];
+  let productNAME =[];
+  let productPRICE = [];
+
   result.rows.forEach((id) => {
-    menuID.push(id.menuid);
+    productID.push(id.productid);
   })
   result.rows.forEach((img) => {
-    menuIMG.push(img.menuimg);
+    productIMG.push(img.image);
   });
+  result.rows.forEach((brand) => {
+    productBRAND.push(brand.brand)
+  })
   result.rows.forEach((name) => {
-    menuNAME.push(name.menuname);
+    productNAME.push(name.name);
   });
   result.rows.forEach((price) => {
-    menuPRICE.push(price.menuprice);
+    productPRICE.push(price.price);
   });
-  result.rows.forEach((realprice) => {
-    menuREALPRICE.push(realprice.menurealprice);
-  });
-  return [menuID, menuIMG, menuNAME, menuPRICE, menuREALPRICE];
+  return [productID, productIMG, productNAME, productPRICE, productBRAND];
 };
 
 //kiểm tra sản phẩm yêu thích của người dùng
-async function checkUSER_fav(id, menuIMG) {
+async function checkUSER_fav(id, productIMG) {
   const result = await db.query("SELECT * FROM user_fav WHERE userid = $1", [id]);
   let fav_productid =[];
   let fav_productimg = [];
 
   result.rows.forEach((id) => {
-    fav_productid.push(id.menuid);
+    fav_productid.push(id.productid);
   });
 
   const fav_product_id = fav_productid;
@@ -86,7 +87,7 @@ async function checkUSER_fav(id, menuIMG) {
 
 
   for (i = 0; i < fav_product_id.length; i++){
-    fav_productimg.push(menuIMG[fav_product_id[i]]);
+    fav_productimg.push(productIMG[fav_product_id[i]]);
   }
   const fav_product_img = fav_productimg;
   // console.log(fav_product_img);
@@ -95,29 +96,47 @@ async function checkUSER_fav(id, menuIMG) {
 };
 
 // kiểm tra từng sản phẩm
-async function checkITEM(item) {
-  const result = await db.query("SELECT *  FROM menu WHERE menuid = $1", [item]);
-  let menuIMG = [];
-  let menuNAME =[];
-  let menuPRICE = [];
-  let menuREALPRICE = [];
-  let menuID =[];
+async function checkPRODUCT_DETAIL(item) {
+  const result = await db.query("SELECT *  FROM productdetail WHERE productid = $1", [item]);
+  let productIMG1 = [];
+  let productIMG2 = [];
+  let productIMG3 = [];
+  let productIMG4 = [];
+  let productNAME =[];
+  let productPRICE = [];
+  let productBRAND = [];
+  let productID =[];
+  let productDESCRIPTION = [];
+
   result.rows.forEach((id) => {
-    menuID.push(id.menuid);
+    productID.push(id.productid);
   })
   result.rows.forEach((img) => {
-    menuIMG.push(img.menuimg);
+    productIMG1.push(img.image1);
+  });
+  result.rows.forEach((img) => {
+    productIMG2.push(img.image2);
+  });
+  result.rows.forEach((img) => {
+    productIMG3.push(img.image3);
+  });
+  result.rows.forEach((img) => {
+    productIMG4.push(img.image4);
   });
   result.rows.forEach((name) => {
-    menuNAME.push(name.menuname);
+    productNAME.push(name.name);
   });
   result.rows.forEach((price) => {
-    menuPRICE.push(price.menuprice);
+    productPRICE.push(price.price);
   });
-  result.rows.forEach((realprice) => {
-    menuREALPRICE.push(realprice.menurealprice);
+  result.rows.forEach((brand) => {
+    productBRAND.push(brand.brand);
   });
-  return [menuID, menuIMG, menuNAME, menuPRICE, menuREALPRICE];
+  result.rows.forEach((description) => {
+    productDESCRIPTION.push(description.description);
+  });
+
+  return [productID, productIMG1, productIMG2, productIMG3, productIMG4, productBRAND, productNAME, productPRICE, productDESCRIPTION];
 };
 
 //kiểm tra tổng giá trị sản phẩm
@@ -126,25 +145,25 @@ async function checkPRICE(fav_product_id) {
 
   for (let i = 0; i < fav_product_id.length; i++) {
     const fav_product = fav_product_id[i];
-    const result = await db.query("SELECT menuprice FROM menu WHERE menuid = $1", [fav_product]);
-    let menuPRICE = []
+    const result = await db.query("SELECT productprice FROM product WHERE productid = $1", [fav_product]);
+    let productPRICE = []
     result.rows.forEach((price) => {
-      menuPRICE.push(price.menuprice);
+      productPRICE.push(price.productprice);
     });
-    PRICE = PRICE + menuPRICE[0];
+    PRICE = PRICE + productPRICE[0];
   };
 
   return PRICE;
 }
 
-// đưa ra menu chính
+// đưa ra product chính
 app.get("/", async (req, res) => {
   // lấy thông tin chi tiết sản phẩm 
-  const [menuID,,,,] =await checkMENU();
-  const [,menuIMG,,,] = await checkMENU();
-  const [,,menuNAME,,] = await checkMENU();
-  const [,,,menuPRICE,] = await checkMENU();
-  const [,,,,menuREALPRICE] = await checkMENU();
+  const [productID,,,,] =await checkPRODUCT();
+  const [,productIMG,,,] = await checkPRODUCT();
+  const [,,productNAME,,] = await checkPRODUCT();
+  const [,,,productPRICE,] = await checkPRODUCT();
+  const [,,,,productBRAND] = await checkPRODUCT();
 
   // kiểm tra xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
@@ -156,16 +175,16 @@ app.get("/", async (req, res) => {
     const picture = profile.picture;
 
     // lấy ra thông tin chi tiết sản phẩm yêu thích
-    const [fav_product_id,] = await checkUSER_fav(id, menuIMG);
-    const [,fav_product_img] = await checkUSER_fav(id, menuIMG);
+    const [fav_product_id,] = await checkUSER_fav(id, productIMG);
+    const [,fav_product_img] = await checkUSER_fav(id, productIMG);
     const price = await checkPRICE(fav_product_id);
 
       res.render("index.ejs", {
-        menu_id: menuID,
-        menu_img: menuIMG,
-        menu_name: menuNAME,
-        menu_price: menuPRICE,
-        menu_realprice: menuREALPRICE,
+        product_id: productID,
+        product_img: productIMG,
+        product_name: productNAME,
+        product_price: productPRICE,
+        product_brand: productBRAND,
         check: check,
         email: email,
         user_name: displayname,
@@ -177,11 +196,11 @@ app.get("/", async (req, res) => {
 
   } else {
     res.render("index.ejs", {
-      menu_id: menuID,
-      menu_img: menuIMG,
-      menu_name: menuNAME,
-      menu_price: menuPRICE,
-      menu_realprice: menuREALPRICE,
+      product_id: productID,
+      product_img: productIMG,
+      product_name: productNAME,
+      product_price: productPRICE,
+      product_brand: productBRAND,
       check: check,
     });
   }
@@ -193,12 +212,20 @@ app.get("/product_detail", async (req, res) => {
   const item = req.query.id;
 
   // lấy thông tin chi tiết sản phẩm
-  const [menuID,,,,] =await checkITEM(item);
-  const [,menuIMG,,,] = await checkITEM(item);
-  const [,,menuNAME,,] = await checkITEM(item);
-  const [,,,menuPRICE,] = await checkITEM(item);
-  const [,,,,menuREALPRICE] = await checkITEM(item);
+  const [productID,,,,,,,,] =await checkPRODUCT_DETAIL(item);
+  const [,productIMG1,,,,,,,] =await checkPRODUCT_DETAIL(item);
+  const [,,productIMG2,,,,,,] =await checkPRODUCT_DETAIL(item);
+  const [,,,productIMG3,,,,,] =await checkPRODUCT_DETAIL(item);
+  const [,,,,productIMG4,,,,] =await checkPRODUCT_DETAIL(item);
+  const [,,,,,productBRAND,,,] =await checkPRODUCT_DETAIL(item);
+  const [,,,,,,productNAME,,] =await checkPRODUCT_DETAIL(item);
+  const [,,,,,,,productPRICE,] =await checkPRODUCT_DETAIL(item);
+  const [,,,,,,,,productDESCRIPTION] =await checkPRODUCT_DETAIL(item);
 
+  console.log(productIMG1);
+  console.log(productIMG2);
+  console.log(productIMG3);
+  console.log(productIMG4);
   // xem sét xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
   const profile = req.user;
@@ -209,16 +236,20 @@ app.get("/product_detail", async (req, res) => {
     const picture = profile.picture;
 
     // lấy ra thông tin chi tiết của sản phẩm yêu thích
-    const [fav_product_id,] = await checkUSER_fav(id, menuIMG);
-    const [,fav_product_img] = await checkUSER_fav(id, menuIMG);
+    const [fav_product_id,] = await checkUSER_fav(id, productIMG);
+    const [,fav_product_img] = await checkUSER_fav(id, productIMG);
 
 
     res.render("product-detail.ejs", {
-      menu_id: menuID,
-      menu_img: menuIMG,
-      menu_name: menuNAME,
-      menu_price: menuPRICE,
-      menu_realprice: menuREALPRICE,
+      product_id: productID,
+      product_img1: productIMG1,
+      product_img2: productIMG2,
+      product_img3: productIMG3,
+      product_img4: productIMG4,
+      product_name: productNAME,
+      product_price: productPRICE,
+      product_brand: productBRAND,
+      product_description: productDESCRIPTION,
       check: check,
       email: email,
       user_name: displayname,
@@ -229,11 +260,15 @@ app.get("/product_detail", async (req, res) => {
 
   } else {
     res.render("product-detail.ejs", {
-      menu_id: menuID,
-      menu_img: menuIMG,
-      menu_name: menuNAME,
-      menu_price: menuPRICE,
-      menu_realprice: menuREALPRICE,
+      product_id: productID,
+      product_img1: productIMG1,
+      product_img2: productIMG2,
+      product_img3: productIMG3,
+      product_img4: productIMG4,
+      product_name: productNAME,
+      product_price: productPRICE,
+      product_brand: productBRAND,
+      product_description: productDESCRIPTION,
       check: check,
     });
   }
@@ -243,11 +278,11 @@ app.get("/favorite", async (req, res) => {
   const item = req.query.id;
 
   // lấy thông tin chi tiết sản phẩm
-  const [menuID,,,,] =await checkITEM(item);
-  const [,menuIMG,,,] = await checkITEM(item);
-  const [,,menuNAME,,] = await checkITEM(item);
-  const [,,,menuPRICE,] = await checkITEM(item);
-  const [,,,,menuREALPRICE] = await checkITEM(item);
+  const [productID,,,,] =await checkPRODUCT_DETAIL(item);
+  const [,productIMG,,,] = await checkPRODUCT_DETAIL(item);
+  const [,,productNAME,,] = await checkPRODUCT_DETAIL(item);
+  const [,,,productPRICE,] = await checkPRODUCT_DETAIL(item);
+  const [,,,,productBRAND] = await checkPRODUCT_DETAIL(item);
 
   // xem sét xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
@@ -259,16 +294,16 @@ app.get("/favorite", async (req, res) => {
     const picture = profile.picture;
 
     // lấy ra thông tin chi tiết của sản phẩm yêu thích
-    const [fav_product_id,] = await checkUSER_fav(id, menuIMG);
-    const [,fav_product_img] = await checkUSER_fav(id, menuIMG);
+    const [fav_product_id,] = await checkUSER_fav(id, productIMG);
+    const [,fav_product_img] = await checkUSER_fav(id, productIMG);
 
 
     res.render("favorite.ejs", {
-      menu_id: menuID,
-      menu_img: menuIMG,
-      menu_name: menuNAME,
-      menu_price: menuPRICE,
-      menu_realprice: menuREALPRICE,
+      product_id: productID,
+      product_img: productIMG,
+      product_name: productNAME,
+      product_price: productPRICE,
+      product_brand: productBRAND,
       check: check,
       email: email,
       user_name: displayname,
@@ -279,11 +314,11 @@ app.get("/favorite", async (req, res) => {
 
   } else {
     res.render("favorite.ejs", {
-      menu_id: menuID,
-      menu_img: menuIMG,
-      menu_name: menuNAME,
-      menu_price: menuPRICE,
-      menu_realprice: menuREALPRICE,
+      product_id: productID,
+      product_img: productIMG,
+      product_name: productNAME,
+      product_price: productPRICE,
+      product_brand: productBRAND,
       check: check,
     });
   }
@@ -293,11 +328,11 @@ app.get("/checkout", async (req, res) => {
   const item = req.query.id;
 
   // lấy thông tin chi tiết sản phẩm
-  const [menuID,,,,] =await checkITEM(item);
-  const [,menuIMG,,,] = await checkITEM(item);
-  const [,,menuNAME,,] = await checkITEM(item);
-  const [,,,menuPRICE,] = await checkITEM(item);
-  const [,,,,menuREALPRICE] = await checkITEM(item);
+  const [productID,,,,] =await checkPRODUCT_DETAIL(item);
+  const [,productIMG,,,] = await checkPRODUCT_DETAIL(item);
+  const [,,productNAME,,] = await checkPRODUCT_DETAIL(item);
+  const [,,,productPRICE,] = await checkPRODUCT_DETAIL(item);
+  const [,,,,productBRAND] = await checkPRODUCT_DETAIL(item);
 
   // xem sét xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
@@ -309,16 +344,16 @@ app.get("/checkout", async (req, res) => {
     const picture = profile.picture;
 
     // lấy ra thông tin chi tiết của sản phẩm yêu thích
-    const [fav_product_id,] = await checkUSER_fav(id, menuIMG);
-    const [,fav_product_img] = await checkUSER_fav(id, menuIMG);
+    const [fav_product_id,] = await checkUSER_fav(id, productIMG);
+    const [,fav_product_img] = await checkUSER_fav(id, productIMG);
 
 
     res.render("checkout.ejs", {
-      menu_id: menuID,
-      menu_img: menuIMG,
-      menu_name: menuNAME,
-      menu_price: menuPRICE,
-      menu_realprice: menuREALPRICE,
+      product_id: productID,
+      product_img: productIMG,
+      product_name: productNAME,
+      product_price: productPRICE,
+      product_brand: productBRAND,
       check: check,
       email: email,
       user_name: displayname,
@@ -329,11 +364,11 @@ app.get("/checkout", async (req, res) => {
 
   } else {
     res.render("checkout.ejs", {
-      menu_id: menuID,
-      menu_img: menuIMG,
-      menu_name: menuNAME,
-      menu_price: menuPRICE,
-      menu_realprice: menuREALPRICE,
+      product_id: productID,
+      product_img: productIMG,
+      product_name: productNAME,
+      product_price: productPRICE,
+      product_brand: productBRAND,
       check: check,
     });
   }
@@ -397,7 +432,7 @@ app.post("/user_favorite", async (req, res) => {
     const product_id = req.body.product_id;
     const user_id = req.user.id;
     try {
-      const result = await db.query("INSERT INTO user_fav (userid, menuid) VALUES ($1, $2) RETURNING *",
+      const result = await db.query("INSERT INTO user_fav (userid, productid) VALUES ($1, $2) RETURNING *",
       [user_id, product_id]);
       console.log("tạo sản phẩm yêu thích thành công");
       res.redirect("/");
