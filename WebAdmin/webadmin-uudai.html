@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang Quản Trị | Di động High-tech</title>
+    <link rel="stylesheet" href="./webadmin.css" />
+  </head>
+  <body>
+    <div class="admin-header">
+      <div class="left-panel">
+        <p>Xin Chào <span>Admin</span></p>
+      </div>
+      <div class="right-panel">
+        <a href="webadmin-home.html">
+          <img src="./house.png" alt="" class="icon" />Trang chủ
+        </a>
+        <a href="webadmin-dangnhap.html">
+          <img src="./logout.png" alt="" class="icon" />Đăng xuất
+        </a>
+      </div>
+    </div>
+    <div class="content">
+      <div class="container">
+        <div class="left-menu">
+          <div class="menu-heading">Admin menu</div>
+          <div class="menu-items">
+            <ul>
+              <li><a href="#">Tin tức</a></li>
+              <li><a href="webadmin-home.html">Đơn Hàng</a></li>
+              <li><a href="webadmin-tonkho.html">Hàng Tồn</a></li>
+              <li>
+                <a href="webadmin-uudai.html"
+                  >Danh sách mail được nhận ưu đãi</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div id="main-content-uudai">
+          <h1 class="card-h1">Danh sách mail nhận ưu đãi</h1>
+          <div class="mail-items">
+            <div class="buttons">
+              <a href="#" onclick="Mail_Table()">Thêm mail</a>
+            </div>
+          </div>
+          <div id="mail-table" class="mail-table">
+            <table class="mailt">
+              <tr class="tr1">
+                <td>ID</td>
+                <td>Tên Mail</td>
+                <td>Ưu đãi nhận được(%)</td>
+                <td>Hủy</td>
+                <td>Đồng ý</td>
+              </tr>
+              <tr>
+                <td><input type="file" name="ID" /></td>
+                <td>
+                  <input type="text" name="mail_name" value="mail_@gmail.com" />
+                </td>
+                <td><input type="text" name="Preferential" value="20" /></td>
+                <td class="button-column">
+                  <input type="button" value="Hủy" />
+                </td>
+                <td class="button-column">
+                  <input type="button" value="Đồng ý" />
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="mail-items">
+            <ul>
+              <li class="mail-items-heading">
+                <div class="pro">ID</div>
+                <div class="pro">Tên mail</div>
+                <div class="pro">Ưu đãi(%)</div>
+                <div class="pro">Sửa</div>
+                <div class="pro">Xóa</div>
+                <div class="pro">Copy</div>
+              </li>
+              <li class="mail-item">
+                <div class="prod">001</div>
+                <div class="prod">A@gmail.com</div>
+                <div class="prod">10</div>
+                <div class="prod"><a href="#">Sửa</a></div>
+                <div class="prod"><a href="#">Xóa</a></div>
+                <div class="prod"><a href="#">Copy</a></div>
+              </li>
+              <li class="mail-item">
+                <div class="prod">002</div>
+                <div class="prod">B@gmail.com</div>
+                <div class="prod">15</div>
+                <div class="prod"><a href="#">Sửa</a></div>
+                <div class="prod"><a href="#">Xóa</a></div>
+                <div class="prod"><a href="#">Copy</a></div>
+              </li>
+              <li class="mail-item">
+                <div class="prod">003</div>
+                <div class="prod">C@gmail.com</div>
+                <div class="prod">30</div>
+                <div class="prod"><a href="#">Sửa</a></div>
+                <div class="prod"><a href="#">Xóa</a></div>
+                <div class="prod"><a href="#">Copy</a></div>
+              </li>
+              <li class="mail-item">
+                <div class="prod">004</div>
+                <div class="prod">D@gmail.com</div>
+                <div class="prod">50</div>
+                <div class="prod"><a href="#">Sửa</a></div>
+                <div class="prod"><a href="#">Xóa</a></div>
+                <div class="prod"><a href="#">Copy</a></div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      function Mail_Table() {
+        var proTable = document.getElementById("mail-table");
+        if (proTable.style.display == "none") proTable.style.display = "block";
+        else proTable.style.display = "none";
+      }
+    </script>
+  </body>
+</html>
