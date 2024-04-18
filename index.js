@@ -73,26 +73,53 @@ async function checkPRODUCT() {
 };
 
 //kiểm tra sản phẩm yêu thích của người dùng
-async function checkUSER_fav(id, productIMG) {
-  const result = await db.query("SELECT * FROM user_fav WHERE userid = $1", [id]);
-  let fav_productid =[];
-  let fav_productimg = [];
+// async function checkUSER_fav(id, productIMG) {
+//   const result = await db.query("SELECT * FROM user_fav WHERE userid = $1", [id]);
+//   let fav_productid =[];
+//   let fav_productimg = []; 
+
+//   result.rows.forEach((id) => {
+//     fav_productid.push(id.productid);
+//   });
+
+//   const fav_product_id = fav_productid;
+//   // console.log(fav_product_id);
+
+
+//   for (i = 0; i < fav_product_id.length; i++){
+//     fav_productimg.push(productIMG[fav_product_id[i]]);
+//   }
+//   const fav_product_img = fav_productimg;
+//   // console.log(fav_product_img);
+
+//   return [fav_product_id, fav_product_img]
+// };
+
+async function checkUSER_fav(id) {
+  const result = await db.query("SELECT product.productid, product.image, product.brand, product.name, product.price FROM user_fav INNER JOIN product ON user_fav.productid = product.productid INNER JOIN users ON user_fav.userid = users.userid WHERE user_fav.userid = $1",
+                                [id]);
+  let productID =[];
+  let productIMG = [];
+  let productBRAND = [];
+  let productNAME =[];
+  let productPRICE = [];
 
   result.rows.forEach((id) => {
-    fav_productid.push(id.productid);
+    productID.push(id.productid);
+  })
+  result.rows.forEach((img) => {
+    productIMG.push(img.image);
   });
-
-  const fav_product_id = fav_productid;
-  // console.log(fav_product_id);
-
-
-  for (i = 0; i < fav_product_id.length; i++){
-    fav_productimg.push(productIMG[fav_product_id[i]]);
-  }
-  const fav_product_img = fav_productimg;
-  // console.log(fav_product_img);
-
-  return [fav_product_id, fav_product_img]
+  result.rows.forEach((brand) => {
+    productBRAND.push(brand.brand)
+  })
+  result.rows.forEach((name) => {
+    productNAME.push(name.name);
+  });
+  result.rows.forEach((price) => {
+    productPRICE.push(price.price);
+  });
+  return [productID, productIMG, productNAME, productPRICE, productBRAND];
 };
 
 // kiểm tra từng sản phẩm
@@ -145,10 +172,10 @@ async function checkPRICE(fav_product_id) {
 
   for (let i = 0; i < fav_product_id.length; i++) {
     const fav_product = fav_product_id[i];
-    const result = await db.query("SELECT productprice FROM product WHERE productid = $1", [fav_product]);
+    const result = await db.query("SELECT price FROM product WHERE productid = $1", [fav_product]);
     let productPRICE = []
     result.rows.forEach((price) => {
-      productPRICE.push(price.productprice);
+      productPRICE.push(price.price);
     });
     PRICE = PRICE + productPRICE[0];
   };
@@ -169,14 +196,14 @@ app.get("/", async (req, res) => {
   const check = req.isAuthenticated();
   const profile = req.user;
   if (profile) {
-    const id = profile.id;
+    const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
     const picture = profile.picture;
 
     // lấy ra thông tin chi tiết sản phẩm yêu thích
-    const [fav_product_id,] = await checkUSER_fav(id, productIMG);
-    const [,fav_product_img] = await checkUSER_fav(id, productIMG);
+    const [fav_product_id,,,,] = await checkUSER_fav(id, productIMG);
+    const [,fav_product_img,,,] = await checkUSER_fav(id, productIMG);
     const price = await checkPRICE(fav_product_id);
 
       res.render("index.ejs", {
@@ -211,6 +238,7 @@ app.get("/", async (req, res) => {
 app.get("/product_detail", async (req, res) => {
   const item = req.query.id;
 
+
   // lấy thông tin chi tiết sản phẩm
   const [productID,,,,,,,,] =await checkPRODUCT_DETAIL(item);
   const [,productIMG1,,,,,,,] =await checkPRODUCT_DETAIL(item);
@@ -222,10 +250,6 @@ app.get("/product_detail", async (req, res) => {
   const [,,,,,,,productPRICE,] =await checkPRODUCT_DETAIL(item);
   const [,,,,,,,,productDESCRIPTION] =await checkPRODUCT_DETAIL(item);
 
-  console.log(productIMG1);
-  console.log(productIMG2);
-  console.log(productIMG3);
-  console.log(productIMG4);
   // xem sét xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
   const profile = req.user;
@@ -236,8 +260,10 @@ app.get("/product_detail", async (req, res) => {
     const picture = profile.picture;
 
     // lấy ra thông tin chi tiết của sản phẩm yêu thích
-    const [fav_product_id,] = await checkUSER_fav(id, productIMG);
-    const [,fav_product_img] = await checkUSER_fav(id, productIMG);
+    const [fav_product_id,,,,] = await checkUSER_fav(id);
+    const [,fav_product_img,,,] = await checkUSER_fav(id);
+
+    const price = await checkPRICE(fav_product_id);
 
 
     res.render("product-detail.ejs", {
@@ -256,6 +282,7 @@ app.get("/product_detail", async (req, res) => {
       picture: picture,
       fav_product_id: fav_product_id,
       fav_product_img: fav_product_img,
+      price: price,
     });
 
   } else {
@@ -274,104 +301,161 @@ app.get("/product_detail", async (req, res) => {
   }
 });
 
-app.get("/favorite", async (req, res) => {
-  const item = req.query.id;
+app.get("/favourite", async (req, res) => {
+  // const item = req.query.id;
+
 
   // lấy thông tin chi tiết sản phẩm
-  const [productID,,,,] =await checkPRODUCT_DETAIL(item);
-  const [,productIMG,,,] = await checkPRODUCT_DETAIL(item);
-  const [,,productNAME,,] = await checkPRODUCT_DETAIL(item);
-  const [,,,productPRICE,] = await checkPRODUCT_DETAIL(item);
-  const [,,,,productBRAND] = await checkPRODUCT_DETAIL(item);
+  // const [productID,,,,,,,,] =await checkPRODUCT_DETAIL(item);
+  // const [,productIMG1,,,,,,,] =await checkPRODUCT_DETAIL(item);
+  // const [,,productIMG2,,,,,,] =await checkPRODUCT_DETAIL(item);
+  // const [,,,productIMG3,,,,,] =await checkPRODUCT_DETAIL(item);
+  // const [,,,,productIMG4,,,,] =await checkPRODUCT_DETAIL(item);
+  // const [,,,,,productBRAND,,,] =await checkPRODUCT_DETAIL(item);
+  // const [,,,,,,productNAME,,] =await checkPRODUCT_DETAIL(item);
+  // const [,,,,,,,productPRICE,] =await checkPRODUCT_DETAIL(item);
+  // const [,,,,,,,,productDESCRIPTION] =await checkPRODUCT_DETAIL(item);
 
   // xem sét xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
   const profile = req.user;
-  if (profile) {
-    const id = profile.id;
+
+    const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
     const picture = profile.picture;
 
     // lấy ra thông tin chi tiết của sản phẩm yêu thích
-    const [fav_product_id,] = await checkUSER_fav(id, productIMG);
-    const [,fav_product_img] = await checkUSER_fav(id, productIMG);
+    const [fav_product_id,,,,] = await checkUSER_fav(id);
+    const [,fav_product_img,,,] = await checkUSER_fav(id);
+    const [,,fav_product_name,,] = await checkUSER_fav(id);
+    const [,,,fav_product_price,] = await checkUSER_fav(id);
+    const [,,,,fav_product_brand] = await checkUSER_fav(id);
+
+    const price = await checkPRICE(fav_product_id);
 
 
-    res.render("favorite.ejs", {
-      product_id: productID,
-      product_img: productIMG,
-      product_name: productNAME,
-      product_price: productPRICE,
-      product_brand: productBRAND,
+    res.render("favourite.ejs", {
+      // product_id: productID,
+      // product_img1: productIMG1,
+      // product_img2: productIMG2,
+      // product_img3: productIMG3,
+      // product_img4: productIMG4,
+      // product_name: productNAME,
+      // product_price: productPRICE,
+      // product_brand: productBRAND,
+      // product_description: productDESCRIPTION,
       check: check,
       email: email,
       user_name: displayname,
       picture: picture,
       fav_product_id: fav_product_id,
       fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
     });
+});
 
-  } else {
-    res.render("favorite.ejs", {
-      product_id: productID,
-      product_img: productIMG,
-      product_name: productNAME,
-      product_price: productPRICE,
-      product_brand: productBRAND,
-      check: check,
-    });
-  }
-})
 
 app.get("/checkout", async (req, res) => {
-  const item = req.query.id;
-
-  // lấy thông tin chi tiết sản phẩm
-  const [productID,,,,] =await checkPRODUCT_DETAIL(item);
-  const [,productIMG,,,] = await checkPRODUCT_DETAIL(item);
-  const [,,productNAME,,] = await checkPRODUCT_DETAIL(item);
-  const [,,,productPRICE,] = await checkPRODUCT_DETAIL(item);
-  const [,,,,productBRAND] = await checkPRODUCT_DETAIL(item);
-
-  // xem sét xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
   const profile = req.user;
-  if (profile) {
-    const id = profile.id;
+
+    const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
     const picture = profile.picture;
 
     // lấy ra thông tin chi tiết của sản phẩm yêu thích
-    const [fav_product_id,] = await checkUSER_fav(id, productIMG);
-    const [,fav_product_img] = await checkUSER_fav(id, productIMG);
+    const [fav_product_id,,,,] = await checkUSER_fav(id);
+    const [,fav_product_img,,,] = await checkUSER_fav(id);
+    const [,,fav_product_name,,] = await checkUSER_fav(id);
+    const [,,,fav_product_price,] = await checkUSER_fav(id);
+    const [,,,,fav_product_brand] = await checkUSER_fav(id);
+    
+    const price = await checkPRICE(fav_product_id);
 
 
     res.render("checkout.ejs", {
-      product_id: productID,
-      product_img: productIMG,
-      product_name: productNAME,
-      product_price: productPRICE,
-      product_brand: productBRAND,
       check: check,
       email: email,
       user_name: displayname,
       picture: picture,
       fav_product_id: fav_product_id,
       fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
     });
+})
 
-  } else {
-    res.render("checkout.ejs", {
-      product_id: productID,
-      product_img: productIMG,
-      product_name: productNAME,
-      product_price: productPRICE,
-      product_brand: productBRAND,
+app.get("/delivery", async (req,res) => {
+  const check = req.isAuthenticated();
+  const profile = req.user;
+
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết của sản phẩm yêu thích
+    const [fav_product_id,,,,] = await checkUSER_fav(id);
+    const [,fav_product_img,,,] = await checkUSER_fav(id);
+    const [,,fav_product_name,,] = await checkUSER_fav(id);
+    const [,,,fav_product_price,] = await checkUSER_fav(id);
+    const [,,,,fav_product_brand] = await checkUSER_fav(id);
+    
+    const price = await checkPRICE(fav_product_id);
+
+
+    res.render("delivery.ejs", {
       check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
     });
-  }
+})
+
+app.get("/payment", async (req, res) => {
+  const check = req.isAuthenticated();
+  const profile = req.user;
+
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết của sản phẩm yêu thích
+    const [fav_product_id,,,,] = await checkUSER_fav(id);
+    const [,fav_product_img,,,] = await checkUSER_fav(id);
+    const [,,fav_product_name,,] = await checkUSER_fav(id);
+    const [,,,fav_product_price,] = await checkUSER_fav(id);
+    const [,,,,fav_product_brand] = await checkUSER_fav(id);
+    
+    const price = await checkPRICE(fav_product_id);
+
+
+    res.render("payment.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    });
 })
 
 app.get("reset_password", async (req, res) => {
@@ -430,7 +514,7 @@ app.post("/user_favorite", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
     const product_id = req.body.product_id;
-    const user_id = req.user.id;
+    const user_id = req.user.userid;
     try {
       const result = await db.query("INSERT INTO user_fav (userid, productid) VALUES ($1, $2) RETURNING *",
       [user_id, product_id]);
