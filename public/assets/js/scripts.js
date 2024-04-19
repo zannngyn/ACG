@@ -378,12 +378,3 @@ function fav_product(button) {
     // Gửi request với dữ liệu đã tạo
     xhr.send(data);
 }
-
-
-$('#searchButton').addEventListener('click', function() {
-    var minPrice = $('#minPrice').value;
-    var maxPrice = $('#maxPrice').value;
-
-    // Chuyển hướng người dùng đến trang kết quả với tham số trên URL
-    window.location.href = '/results?minPrice=' + minPrice + '&maxPrice=' + maxPrice;
-});
