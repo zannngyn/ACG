@@ -46,58 +46,64 @@ const db = new pg.Client({
 db.connect();
 
 //kiểm tra sản phẩm trong cơ sở dữ liệu
-async function checkPRODUCT() {
-  const result = await db.query("SELECT *  FROM product");
+// async function checkPRODUCT() {
+//   const result = await db.query("SELECT *  FROM product");
+//   let productID =[];
+//   let productIMG = [];
+//   let productBRAND = [];
+//   let productNAME =[];
+//   let productPRICE = [];
+
+//   result.rows.forEach((id) => {
+//     productID.push(id.productid);
+//   })
+//   result.rows.forEach((img) => {
+//     productIMG.push(img.image);
+//   });
+//   result.rows.forEach((brand) => {
+//     productBRAND.push(brand.brand)
+//   })
+//   result.rows.forEach((name) => {
+//     productNAME.push(name.name);
+//   });
+//   result.rows.forEach((price) => {
+//     productPRICE.push(price.price);
+//   });
+//   return [productID, productIMG, productNAME, productPRICE, productBRAND];
+// };
+
+//kiểm tra sản phẩm dựa trên giá người dùng chọn
+async function checkPRODUCT_user_chose(minPrice, maxPrice, product_name) {
+  let query;
+  let params = [];
+
+  if (product_name && minPrice && maxPrice) {
+    query = "SELECT * FROM product WHERE price BETWEEN $1 AND $2 AND UPPER(brand) LIKE UPPER($3)";
+    params.push(minPrice, maxPrice, `%${product_name}%`);
+  } else if (minPrice && maxPrice) {
+    query = "SELECT * FROM product WHERE price BETWEEN $1 AND $2";
+    params.push(minPrice, maxPrice);
+  } else if (product_name) {
+    query = "SELECT * FROM product WHERE UPPER(brand) LIKE UPPER($1)";
+    params.push(`%${product_name}%`);
+  } else {
+    query = "SELECT * FROM product";
+  }
+
+  const result = await db.query(query, params);
+
   let productID =[];
   let productIMG = [];
   let productBRAND = [];
   let productNAME =[];
   let productPRICE = [];
 
-  result.rows.forEach((id) => {
-    productID.push(id.productid);
-  })
-  result.rows.forEach((img) => {
-    productIMG.push(img.image);
-  });
-  result.rows.forEach((brand) => {
-    productBRAND.push(brand.brand)
-  })
-  result.rows.forEach((name) => {
-    productNAME.push(name.name);
-  });
-  result.rows.forEach((price) => {
-    productPRICE.push(price.price);
-  });
-  return [productID, productIMG, productNAME, productPRICE, productBRAND];
-};
-
-//kiểm tra sản phẩm tương ứng với cái người dùng chọn
-async function checkPRODUCT_user_chose(minPrice, maxPrice) {
-  const result = await db.query("SELECT *  FROM product WHERE price BETWEEN $1 AND $2",
-  [minPrice, maxPrice]
-  );
-
-  let productID =[];
-  let productIMG = [];
-  let productBRAND = [];
-  let productNAME =[];
-  let productPRICE = [];
-
-  result.rows.forEach((id) => {
-    productID.push(id.productid);
-  })
-  result.rows.forEach((img) => {
-    productIMG.push(img.image);
-  });
-  result.rows.forEach((brand) => {
-    productBRAND.push(brand.brand)
-  })
-  result.rows.forEach((name) => {
-    productNAME.push(name.name);
-  });
-  result.rows.forEach((price) => {
-    productPRICE.push(price.price);
+  result.rows.forEach((row) => {
+    productID.push(row.productid);
+    productIMG.push(row.image);
+    productBRAND.push(row.brand);
+    productNAME.push(row.name);
+    productPRICE.push(row.price);
   });
   return [productID, productIMG, productNAME, productPRICE, productBRAND];
 }
@@ -134,21 +140,14 @@ async function checkUSER_fav(id) {
   let productNAME =[];
   let productPRICE = [];
 
-  result.rows.forEach((id) => {
-    productID.push(id.productid);
-  })
-  result.rows.forEach((img) => {
-    productIMG.push(img.image);
+  result.rows.forEach((row) => {
+    productID.push(row.productid);
+    productIMG.push(row.image);
+    productBRAND.push(row.brand);
+    productNAME.push(row.name);
+    productPRICE.push(row.price);
   });
-  result.rows.forEach((brand) => {
-    productBRAND.push(brand.brand)
-  })
-  result.rows.forEach((name) => {
-    productNAME.push(name.name);
-  });
-  result.rows.forEach((price) => {
-    productPRICE.push(price.price);
-  });
+
   return [productID, productIMG, productNAME, productPRICE, productBRAND];
 };
 
@@ -165,32 +164,16 @@ async function checkPRODUCT_DETAIL(item) {
   let productID =[];
   let productDESCRIPTION = [];
 
-  result.rows.forEach((id) => {
-    productID.push(id.productid);
-  })
-  result.rows.forEach((img) => {
-    productIMG1.push(img.image1);
-  });
-  result.rows.forEach((img) => {
-    productIMG2.push(img.image2);
-  });
-  result.rows.forEach((img) => {
-    productIMG3.push(img.image3);
-  });
-  result.rows.forEach((img) => {
-    productIMG4.push(img.image4);
-  });
-  result.rows.forEach((name) => {
-    productNAME.push(name.name);
-  });
-  result.rows.forEach((price) => {
-    productPRICE.push(price.price);
-  });
-  result.rows.forEach((brand) => {
-    productBRAND.push(brand.brand);
-  });
-  result.rows.forEach((description) => {
-    productDESCRIPTION.push(description.description);
+  result.rows.forEach((row) => {
+    productID.push(row.productid);
+    productIMG1.push(row.image1);
+    productIMG2.push(row.image2);
+    productIMG3.push(row.image3);
+    productIMG4.push(row.image4);
+    productBRAND.push(row.brand);
+    productNAME.push(row.name);
+    productPRICE.push(row.price);
+    productDESCRIPTION.push(row.description);
   });
 
   return [productID, productIMG1, productIMG2, productIMG3, productIMG4, productBRAND, productNAME, productPRICE, productDESCRIPTION];
@@ -214,68 +197,68 @@ async function checkPRICE(fav_product_id) {
 }
 
 // đưa ra product chính
-app.get("/", async (req, res) => {
-  // lấy thông tin chi tiết sản phẩm 
-  const [productID,,,,] =await checkPRODUCT();
-  const [,productIMG,,,] = await checkPRODUCT();
-  const [,,productNAME,,] = await checkPRODUCT();
-  const [,,,productPRICE,] = await checkPRODUCT();
-  const [,,,,productBRAND] = await checkPRODUCT();
+// app.get("/", async (req, res) => {
+//   // lấy thông tin chi tiết sản phẩm 
+//   const [productID,,,,] =await checkPRODUCT();
+//   const [,productIMG,,,] = await checkPRODUCT();
+//   const [,,productNAME,,] = await checkPRODUCT();
+//   const [,,,productPRICE,] = await checkPRODUCT();
+//   const [,,,,productBRAND] = await checkPRODUCT();
 
-  // kiểm tra xem có người dùng đăng nhập không?
-  const check = req.isAuthenticated();
-  const profile = req.user;
-  if (profile) {
-    const id = profile.userid;
-    const email = profile.email;
-    const displayname = profile.displayname;
-    const picture = profile.picture;
+//   // kiểm tra xem có người dùng đăng nhập không?
+//   const check = req.isAuthenticated();
+//   const profile = req.user;
+//   if (profile) {
+//     const id = profile.userid;
+//     const email = profile.email;
+//     const displayname = profile.displayname;
+//     const picture = profile.picture;
 
-    // lấy ra thông tin chi tiết sản phẩm yêu thích
-    const [fav_product_id,,,,] = await checkUSER_fav(id, productIMG);
-    const [,fav_product_img,,,] = await checkUSER_fav(id, productIMG);
-    const price = await checkPRICE(fav_product_id);
+//     // lấy ra thông tin chi tiết sản phẩm yêu thích
+//     const [fav_product_id,,,,] = await checkUSER_fav(id, productIMG);
+//     const [,fav_product_img,,,] = await checkUSER_fav(id, productIMG);
+//     const price = await checkPRICE(fav_product_id);
 
-      res.render("index.ejs", {
-        product_id: productID,
-        product_img: productIMG,
-        product_name: productNAME,
-        product_price: productPRICE,
-        product_brand: productBRAND,
-        check: check,
-        email: email,
-        user_name: displayname,
-        picture: picture,
-        fav_product_id: fav_product_id,
-        fav_product_img: fav_product_img,
-        price: price,
-      });
+//       res.render("index.ejs", {
+//         product_id: productID,
+//         product_img: productIMG,
+//         product_name: productNAME,
+//         product_price: productPRICE,
+//         product_brand: productBRAND,
+//         check: check,
+//         email: email,
+//         user_name: displayname,
+//         picture: picture,
+//         fav_product_id: fav_product_id,
+//         fav_product_img: fav_product_img,
+//         price: price,
+//       });
 
-  } else {
-    res.render("index.ejs", {
-      product_id: productID,
-      product_img: productIMG,
-      product_name: productNAME,
-      product_price: productPRICE,
-      product_brand: productBRAND,
-      check: check,
-    });
-  }
+//   } else {
+//     res.render("index.ejs", {
+//       product_id: productID,
+//       product_img: productIMG,
+//       product_name: productNAME,
+//       product_price: productPRICE,
+//       product_brand: productBRAND,
+//       check: check,
+//     });
+//   }
   
-});
+// });
 
-app.get("/product", async (req, res) => {
+//tìm kiếm sản phẩm dựa trên giá
+app.get("/", async (req, res) => {
   const minPrice = req.query.minPrice;
   const maxPrice = req.query.maxPrice;
-  console.log(minPrice);
-  console.log(maxPrice);
+  const product_name = req.query.product_name;
 
   // lấy thông tin chi tiết sản phẩm 
-  const [productID,,,,] =await checkPRODUCT_user_chose(minPrice, maxPrice);
-  const [,productIMG,,,] = await checkPRODUCT_user_chose(minPrice, maxPrice);
-  const [,,productNAME,,] = await checkPRODUCT_user_chose(minPrice, maxPrice);
-  const [,,,productPRICE,] = await checkPRODUCT_user_chose(minPrice, maxPrice);
-  const [,,,,productBRAND] = await checkPRODUCT_user_chose(minPrice, maxPrice);
+  const [productID,,,,] =await checkPRODUCT_user_chose(minPrice, maxPrice, product_name);
+  const [,productIMG,,,] = await checkPRODUCT_user_chose(minPrice, maxPrice, product_name);
+  const [,,productNAME,,] = await checkPRODUCT_user_chose(minPrice, maxPrice, product_name);
+  const [,,,productPRICE,] = await checkPRODUCT_user_chose(minPrice, maxPrice, product_name);
+  const [,,,,productBRAND] = await checkPRODUCT_user_chose(minPrice, maxPrice, product_name);
 
   // kiểm tra xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
@@ -596,9 +579,7 @@ app.post("/search", async (req,res) => {
   const maxPrice = req.body.maxPrice;
   const product_name = req.body.text;
   console.log(product_name);
-  console.log(minPrice);
-  console.log(minPrice);
-  res.redirect('/product?minPrice=' + minPrice + '&maxPrice=' + maxPrice);
+  res.redirect('/?minPrice=' + minPrice + '&maxPrice=' + maxPrice +'&product_name=' + product_name);
 })
 
 // tạo sản phẩm yêu thích mới

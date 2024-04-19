@@ -42,3 +42,5 @@ from user_fav
             inner join product on user_fav.productid = product.productid
             inner join users on user_fav.userid = users.userid
 where user_fav.userid = 1
+
+SELECT *  FROM product WHERE price BETWEEN 0 AND 20000000AND UPPER(brand) like UPPER('%iPHone%')
