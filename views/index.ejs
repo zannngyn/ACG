@@ -177,7 +177,7 @@
                 class="filter__arrow"
               />
               <h3 class="filter__heading">Bộ lọc</h3>
-              <form action="/" class="filter__form form" method="POST">
+              <form action="/search" class="filter__form form" method="POST">
                 <div class="filter__row filter__content">
                   <!-- Filter column 1 -->
                   <div class="filter__col">
@@ -198,8 +198,8 @@
                         >
                           <input
                             type="number"
-                            name="price_min"
-                            id=""
+                            name="minPrice"
+                            id="minPrice"
                             class="filter__form-input"
                             placeholder="$15.00"
                           />
@@ -214,8 +214,8 @@
                         >
                           <input
                             type="number"
-                            name="price_max"
-                            id=""
+                            name="maxPrice"
+                            id="maxPrice"
                             class="filter__form-input"
                             placeholder="$100.00"
                           />
@@ -233,7 +233,7 @@
                       <div class="filter__form-text-input">
                         <input
                           type="text"
-                          name=""
+                          name="text"
                           id=""
                           placeholder="Tìm kiếm "
                           class="filter__form-input"
@@ -264,6 +264,7 @@
                   <button
                     class="btn btn--primary filter__submit js-toggle"
                     toggle-target="#home-filter"
+                    type="submit"
                   >
                     Tìm
                   </button>

@@ -1,4 +1,4 @@
-import express, { json, response } from "express";
+import express, { json, response} from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
 import bcrypt from "bcrypt"
@@ -7,7 +7,7 @@ import { Strategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2"
 import session from "express-session";
 import env from "dotenv";
-
+import axios from "axios";
 
 // sử dụng express, tạo cổng, tạo số lần sử dụng bcrypt, kết nối .evn
 const app = express();
@@ -71,6 +71,36 @@ async function checkPRODUCT() {
   });
   return [productID, productIMG, productNAME, productPRICE, productBRAND];
 };
+
+//kiểm tra sản phẩm tương ứng với cái người dùng chọn
+async function checkPRODUCT_user_chose(minPrice, maxPrice) {
+  const result = await db.query("SELECT *  FROM product WHERE price BETWEEN $1 AND $2",
+  [minPrice, maxPrice]
+  );
+
+  let productID =[];
+  let productIMG = [];
+  let productBRAND = [];
+  let productNAME =[];
+  let productPRICE = [];
+
+  result.rows.forEach((id) => {
+    productID.push(id.productid);
+  })
+  result.rows.forEach((img) => {
+    productIMG.push(img.image);
+  });
+  result.rows.forEach((brand) => {
+    productBRAND.push(brand.brand)
+  })
+  result.rows.forEach((name) => {
+    productNAME.push(name.name);
+  });
+  result.rows.forEach((price) => {
+    productPRICE.push(price.price);
+  });
+  return [productID, productIMG, productNAME, productPRICE, productBRAND];
+}
 
 //kiểm tra sản phẩm yêu thích của người dùng
 // async function checkUSER_fav(id, productIMG) {
@@ -191,6 +221,61 @@ app.get("/", async (req, res) => {
   const [,,productNAME,,] = await checkPRODUCT();
   const [,,,productPRICE,] = await checkPRODUCT();
   const [,,,,productBRAND] = await checkPRODUCT();
+
+  // kiểm tra xem có người dùng đăng nhập không?
+  const check = req.isAuthenticated();
+  const profile = req.user;
+  if (profile) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,,,,] = await checkUSER_fav(id, productIMG);
+    const [,fav_product_img,,,] = await checkUSER_fav(id, productIMG);
+    const price = await checkPRICE(fav_product_id);
+
+      res.render("index.ejs", {
+        product_id: productID,
+        product_img: productIMG,
+        product_name: productNAME,
+        product_price: productPRICE,
+        product_brand: productBRAND,
+        check: check,
+        email: email,
+        user_name: displayname,
+        picture: picture,
+        fav_product_id: fav_product_id,
+        fav_product_img: fav_product_img,
+        price: price,
+      });
+
+  } else {
+    res.render("index.ejs", {
+      product_id: productID,
+      product_img: productIMG,
+      product_name: productNAME,
+      product_price: productPRICE,
+      product_brand: productBRAND,
+      check: check,
+    });
+  }
+  
+});
+
+app.get("/product", async (req, res) => {
+  const minPrice = req.query.minPrice;
+  const maxPrice = req.query.maxPrice;
+  console.log(minPrice);
+  console.log(maxPrice);
+
+  // lấy thông tin chi tiết sản phẩm 
+  const [productID,,,,] =await checkPRODUCT_user_chose(minPrice, maxPrice);
+  const [,productIMG,,,] = await checkPRODUCT_user_chose(minPrice, maxPrice);
+  const [,,productNAME,,] = await checkPRODUCT_user_chose(minPrice, maxPrice);
+  const [,,,productPRICE,] = await checkPRODUCT_user_chose(minPrice, maxPrice);
+  const [,,,,productBRAND] = await checkPRODUCT_user_chose(minPrice, maxPrice);
 
   // kiểm tra xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
@@ -393,6 +478,10 @@ app.get("/checkout", async (req, res) => {
 })
 
 app.get("/delivery", async (req,res) => {
+
+
+
+
   const check = req.isAuthenticated();
   const profile = req.user;
 
@@ -501,12 +590,15 @@ app.get("/sign_out", (req, res) => {
   });
 });
 
-app.post("/", async (req,res) => {
-  const pirce_min = req.body.price_min;
-  const price_max = req.body.price_max;
-  console.log(pirce_min);
-  console.log(price_max);
-  res.redirect("/");
+app.post("/search", async (req,res) => {
+  // '/results?minPrice=' + minPrice + '&maxPrice=' + maxPrice;
+  const minPrice = req.body.minPrice;
+  const maxPrice = req.body.maxPrice;
+  const product_name = req.body.text;
+  console.log(product_name);
+  console.log(minPrice);
+  console.log(minPrice);
+  res.redirect('/product?minPrice=' + minPrice + '&maxPrice=' + maxPrice);
 })
 
 // tạo sản phẩm yêu thích mới
