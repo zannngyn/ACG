@@ -43,8 +43,8 @@ const db = new Pool({
     // database: process.env.PG_DATABASE,
     // password: process.env.PG_PASSWORD,
     // port: process.env.PG_PORT,
-    connectionString: "postgres://default:J2gxFN4OQaXu@ep-old-wind-a1zylsmb-pooler.ap-southeast-1.aws.neon.tech:5432/verceldb?sslmode=require" + "?sslmode=require"
-  });
+    connectionString: process.env.POSTGRES_URL ,
+ });
   db.connect();
 
 

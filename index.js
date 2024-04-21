@@ -623,7 +623,7 @@ app.post("/user_favourite", async (req, res) => {
     // const product_id = req.params.product_id;
     console.log(product_id);
     const user_id = req.user.userid;
-
+    console.log(user_id);
     const check = await checkHEART(user_id, product_id)
 
     if (check == 'like-btn--liked') {
@@ -631,7 +631,11 @@ app.post("/user_favourite", async (req, res) => {
         const result = await db.query("DELETE FROM user_fav WHERE userid = $1 AND productid = $2 RETURNING *",
         [user_id, product_id]);
         console.log("Xoá sản phẩm yêu thích thành công");
-        return res.redirect("/")
+        try {
+          return res.redirect("/")
+        } catch (error) {
+          console.log(err);
+        }
       } catch (err) {
         console.log(err);
         res.redirect("/");
@@ -641,7 +645,11 @@ app.post("/user_favourite", async (req, res) => {
         const result = await db.query("INSERT INTO user_fav VALUES ($1, $2, $3) RETURNING *",
         [user_id, product_id, 1]);
         console.log("tạo sản phẩm yêu thích thành công");
-        return res.redirect("/")
+        try {
+          return res.redirect("/")
+        } catch (error) {
+          console.log(err);
+        }
       } catch (err) {
         console.log(err);
         res.redirect("/");
