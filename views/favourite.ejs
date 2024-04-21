@@ -164,7 +164,7 @@
                         checked
                       />
                     </label>
-                    <a href="/product_detail">
+                    <a href="/product_detail?id= <%= fav_product_id[i] %>">
                       <img
                         src="<%= fav_product_img[i] %>"
                         alt=""
@@ -174,7 +174,7 @@
                     <div class="cart-item__content">
                       <div class="cart-item__content-left">
                         <h3 class="cart-item__title">
-                          <a href="/product_detail">
+                          <a href="/product_detail?id= <%= fav_product_id[i] %>">
                             <%= fav_product_name[i] %>
                           </a>
                         </h3>
@@ -195,7 +195,7 @@
                               />
                             </div>
                             <div class="cart-item__input">
-                              <button class="cart-item__input-btn">
+                              <button class="cart-item__input-btn" type="submit" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product_minus(this)">
                                 <img
                                   class="icon"
                                   src="./assets/icons/minus.svg"
@@ -203,7 +203,7 @@
                                 />
                               </button>
                               <span>1</span>
-                              <button class="cart-item__input-btn">
+                              <button class="cart-item__input-btn" type="submit" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product_plus(this)">
                                 <img
                                   class="icon"
                                   src="./assets/icons/plus.svg"
@@ -214,7 +214,7 @@
                           </div>
                           <div class="cart-item__ctrl">
                             <button class="cart-item__ctrl-btn">
-                              <img src="./assets/icons/heart-2.svg" alt="" />
+                              <img src="./assets/icons/heart-2.svg" alt="" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product(this)"/>
                               Thích
                             </button>
                             <button

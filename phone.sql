@@ -28,8 +28,8 @@ CREATE TABLE productdetail(
 
 CREATE TABLE user_fav(
     userid INT REFERENCES users(userid),
-    productid REFERENCES product(productid),
-    number int NOT NULL,
+    productid INT REFERENCES product(productid),
+    number INT NOT NULL
 )
 
 CREATE TABLE user_address (
@@ -43,4 +43,21 @@ from user_fav
             inner join users on user_fav.userid = users.userid
 where user_fav.userid = 1
 
-SELECT *  FROM product WHERE price BETWEEN 0 AND 20000000AND UPPER(brand) like UPPER('%iPHone%')
+SELECT *  FROM product 
+WHERE price BETWEEN 0 AND 20000000
+AND UPPER(brand) like UPPER('%iPHone%')
+
+UPDATE user_fav 
+SET number = number + 1 
+WHERE productid = $1
+AND userid = $2
+
+SELECT *
+FROM user_fav 
+WHERE userid = $1
+AND productid = $2
+
+DELETE
+FROM user_fav
+WHERE userid = $1
+AND productid = $2
