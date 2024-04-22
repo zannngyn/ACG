@@ -211,10 +211,12 @@ async function checkPRICE(userid, fav_product_id) {
   let PRICE = 0;
   let fav_product_price_per_product = [];
   let price = 0;
+  let tong = 0; 
 
   for (let i = 0; i < fav_product_id.length; i++) {
     const fav_product = fav_product_id[i];
-    const result = await db.query("SELECT product.price, user_fav.number FROM product inner join user_fav ON product.productid = user_fav.productid WHERE userid = $1 AND user_fav.productid = $2", [userid, fav_product]);
+    const result = await db.query("SELECT product.price, user_fav.number FROM product inner join user_fav ON product.productid = user_fav.productid WHERE userid = $1 AND user_fav.productid = $2", 
+    [userid, fav_product]);
     let productPRICE = [];
     let number = [];
     result.rows.forEach((row) => {
@@ -227,7 +229,8 @@ async function checkPRICE(userid, fav_product_id) {
 
   for (let i = 0; i < fav_product_id.length; i++) {
     const fav_product = fav_product_id[i];
-    const result = await db.query("SELECT product.price, user_fav.number FROM product inner join user_fav ON product.productid = user_fav.productid WHERE userid = $1 AND user_fav.productid = $2", [userid, fav_product]);
+    const result = await db.query("SELECT product.price, user_fav.number FROM product inner join user_fav ON product.productid = user_fav.productid WHERE userid = $1 AND user_fav.productid = $2", 
+    [userid, fav_product]);
     let productPRICE = [];
     let number = [];
     result.rows.forEach((row) => {
@@ -237,7 +240,20 @@ async function checkPRICE(userid, fav_product_id) {
     PRICE = PRICE + productPRICE[0]*number[0];
   };
 
-  return [fav_product_price_per_product, PRICE];
+  for (let i = 0; i < fav_product_id.length; i++) {
+    const fav_product = fav_product_id[i];
+    const result = await db.query("SELECT product.price, user_fav.number FROM product inner join user_fav ON product.productid = user_fav.productid WHERE userid = $1 AND user_fav.productid = $2", 
+    [userid, fav_product]);
+    let productPRICE = [];
+    let number = [];
+    result.rows.forEach((row) => {
+      productPRICE.push(row.price);
+      number.push(row.number);
+    });
+    tong = tong + number[0];
+  };
+
+  return [fav_product_price_per_product, PRICE, tong];
 }
 
 // đưa ra product chính
@@ -318,7 +334,7 @@ app.get("/", async (req, res) => {
     // lấy ra thông tin chi tiết sản phẩm yêu thích
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
     // const [,fav_product_img,,,] = await checkUSER_fav(id, productIMG);
-    const [fav_product_price_per_product, price] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
 
       res.render("index.ejs", {
         product_id: productID,
@@ -384,7 +400,7 @@ app.get("/product_detail", async (req, res) => {
 
     const [,,,,,productHEART] = await checkPRODUCT(id);
 
-    const [fav_product_price_per_product, price] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
 
 
     res.render("product-detail.ejs", {
@@ -460,7 +476,7 @@ app.get("/favourite", async (req, res) => {
     // const [,,,fav_product_price,] = await checkUSER_fav(id);
     // const [,,,,fav_product_brand] = await checkUSER_fav(id);
 
-    const [fav_product_price_per_product, price] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
 
 
     res.render("favourite.ejs", {
@@ -499,7 +515,7 @@ app.get("/checkout", async (req, res) => {
     const picture = profile.picture;
 
     // lấy ra thông tin chi tiết của sản phẩm yêu thích
-    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand] = await checkUSER_fav(id);
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
    
     // const [fav_product_id,,,,] = await checkUSER_fav(id);
     // const [,fav_product_img,,,] = await checkUSER_fav(id);
@@ -507,7 +523,7 @@ app.get("/checkout", async (req, res) => {
     // const [,,,fav_product_price,] = await checkUSER_fav(id);
     // const [,,,,fav_product_brand] = await checkUSER_fav(id);
     
-    const [fav_product_price_per_product, price] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong] = await checkPRICE(id, fav_product_id);
 
 
     res.render("checkout.ejs", {
@@ -520,6 +536,9 @@ app.get("/checkout", async (req, res) => {
       fav_product_name: fav_product_name,
       fav_product_price: fav_product_price,
       fav_product_brand: fav_product_brand,
+      fav_product_number: fav_product_number,
+      fav_product_price_per_product: fav_product_price_per_product,
+      tong: tong,
       price: price,
     });
 })
@@ -546,7 +565,7 @@ app.get("/delivery", async (req,res) => {
     // const [,,,fav_product_price,] = await checkUSER_fav(id);
     // const [,,,,fav_product_brand] = await checkUSER_fav(id);
     
-    const [fav_product_price_per_product, price] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
 
 
     res.render("delivery.ejs", {
@@ -581,7 +600,7 @@ app.get("/payment", async (req, res) => {
     // const [,,,fav_product_price,] = await checkUSER_fav(id);
     // const [,,,,fav_product_brand] = await checkUSER_fav(id);
     
-    const [fav_product_price_per_product, price] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
 
 
     res.render("payment.ejs", {
