@@ -359,7 +359,7 @@ function fav_product(button) {
     var xhr = new XMLHttpRequest();
 
     // Định nghĩa phương thức và URL của request
-    xhr.open("POST", "/user_favorite", true);
+    xhr.open("POST", "/user_favourite", true);
 
     // Thiết lập header cho request
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -378,3 +378,61 @@ function fav_product(button) {
     // Gửi request với dữ liệu đã tạo
     xhr.send(data);
 }
+
+//thêm 1 sản phẩm yêu thích trong cơ sở dữ liệu
+function fav_product_plus(button) {
+    var product_id = button.getAttribute("data-product-id");
+
+    // Tạo một đối tượng XMLHttpRequest
+    var xhr = new XMLHttpRequest();
+
+    // Định nghĩa phương thức và URL của request
+    xhr.open("PATCH", "/user_favourite_plus", true);
+
+    // Thiết lập header cho request
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    // Xử lý khi request được hoàn thành
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            // Xử lý phản hồi từ backend nếu cần
+            console.log(xhr.responseText);
+        }
+    };
+
+    // Tạo dữ liệu để gửi đến backend
+    var data = "product_id=" + product_id;
+
+    // Gửi request với dữ liệu đã tạo
+    xhr.send(data);
+}
+
+//trừ đi một sản phẩm yêu thích trong cơ sở dữ liệu
+function fav_product_minus(button) {
+    var product_id = button.getAttribute("data-product-id");
+
+    // Tạo một đối tượng XMLHttpRequest
+    var xhr = new XMLHttpRequest();
+
+    // Định nghĩa phương thức và URL của request
+    xhr.open("POST", "/user_favourite_minus", true);
+
+    // Thiết lập header cho request
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    // Xử lý khi request được hoàn thành
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            // Xử lý phản hồi từ backend nếu cần
+            console.log(xhr.responseText);
+        }
+    };
+
+    // Tạo dữ liệu để gửi đến backend
+    var data = "product_id=" + product_id;
+
+    // Gửi request với dữ liệu đã tạo
+    xhr.send(data);
+}
+
+
