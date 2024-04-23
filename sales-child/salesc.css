@@ -1,0 +1,34 @@
+.container {
+    display: flex;
+}
+
+.leftside {
+    flex: 7;
+}
+
+.rightside {
+    flex: 3;
+    margin-left: 10px;
+}
+ul {
+    list-style-type: none; /* Loại bỏ kiểu danh sách mặc định */
+    padding: 0; /* Xóa lề bên trái của danh sách */
+}
+.rightside ul li a{
+    display: grid;
+    grid-template-columns: auto auto;
+    text-decoration: none;
+    color:black;
+}
+.rightside ul li a h3{
+    margin-top: 0;
+    margin-left: 5px;
+}
+.rightside ul li{
+    margin-top: 30px;
+}
+.prosale{
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
