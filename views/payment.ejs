@@ -166,7 +166,7 @@
                 <!-- Payment item 1 -->
                 <article class="payment-item">
                   <div class="payment-item__info">
-                    <h3 class="payment-item__title">username</h3>
+                    <h3 class="payment-item__title"><%= user_name %></h3>
                     <p class="payment-item__desc">
                       Q. Bắc Từ Liêm, Tp Hà Nội
                     </p>
@@ -177,7 +177,7 @@
                 <article class="payment-item">
                   <div class="payment-item__info">
                     <h3 class="payment-item__title">Thông tin đơn hàng</h3>
-                    <p class="payment-item__desc">x sản phẩm</p>
+                    <p class="payment-item__desc"><%= fav_product_id.length %> sản phẩm</p>
                   </div>
                   <a href="./shipping.html" class="payment-item__detail">Xem</a>
                 </article>
@@ -382,28 +382,28 @@
                     >Số lượng
                     <span class="cart-info__sub-label">(sản phấm)</span></span
                   >
-                  <span>3</span>
+                  <span><%= fav_product_id.length %></span>
                 </div>
                 <div class="cart-info__row">
                   <span
                     >Tổng
                     <span class="cart-info__sub-label">(Ước tính)</span></span
                   >
-                  <span>$191.65</span>
+                  <span><%= price %></span>
                 </div>
                 <div class="cart-info__row">
                   <span>Phí vận chuyển</span>
-                  <span>$12.00</span>
+                  <span>0.00</span>
                 </div>
                 <div class="cart-info__separate"></div>
                 <div class="cart-info__row">
                   <span>Tất toán</span>
-                  <span>$201.65</span>
+                  <span><%= price %></span> 
                 </div>
                 <a
                   href="#!"
                   class="cart-info__next-btn btn btn--primary btn--rounded"
-                  >Thanh toán $201.65</a
+                  >Thanh toán <%= price %></a
                 >
               </div>
             </div>

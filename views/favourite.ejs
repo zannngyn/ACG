@@ -95,7 +95,6 @@
   <body>
     <!-- Header -->
     <%- include("./templates/header.ejs") %>
-
     <!-- MAIN -->
     <main class="checkout-page">
       <div class="container">
@@ -142,7 +141,7 @@
             <div class="col-12">
               <div class="cart-info">
                 <h1 class="cart-info__heading">Sản phẩm đã thích</h1>
-                <p class="cart-info__desc">3sp</p>
+                <p class="cart-info__desc"><%= fav_product_id.length %> sp </p>
                 <div class="cart-info__check-all">
                   <label class="cart-info__checkbox">
                     <input
@@ -153,7 +152,8 @@
                   </label>
                 </div>
                 <div class="cart-info__list">
-                  <!-- Cart item 1 -->
+                  <!-- Cart item -->
+                  <% for (i = 0; i < fav_product_id.length; i++){%>
                   <article class="cart-item">
                     <label class="cart-info__checkbox">
                       <input
@@ -163,9 +163,9 @@
                         checked
                       />
                     </label>
-                    <a href="./product-detail.html">
+                    <a href="/product_detail?id= <%= fav_product_id[i] %>">
                       <img
-                        src="./assets/img/product/item-1.png"
+                        src="<%= fav_product_img[i] %>"
                         alt=""
                         class="cart-item__thumb"
                       />
@@ -173,12 +173,12 @@
                     <div class="cart-item__content">
                       <div class="cart-item__content-left">
                         <h3 class="cart-item__title">
-                          <a href="./product-detail.html">
-                            Coffee Beans - Espresso Arabica and Robusta Beans
+                          <a href="/product_detail?id= <%= fav_product_id[i] %>">
+                            <%= fav_product_name[i] %>
                           </a>
                         </h3>
                         <p class="cart-item__price-wrap">
-                          $47.00 |
+                          <%= fav_product_price[i] %>
                           <span class="cart-item__status">In Stock</span>
                         </p>
                         <div class="cart-item__ctrl-wrap">
@@ -194,15 +194,15 @@
                               />
                             </div>
                             <div class="cart-item__input">
-                              <button class="cart-item__input-btn">
+                              <button class="cart-item__input-btn" type="submit" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product_minus(this)">
                                 <img
                                   class="icon"
                                   src="./assets/icons/minus.svg"
                                   alt=""
                                 />
                               </button>
-                              <span>1</span>
-                              <button class="cart-item__input-btn">
+                              <span><%= fav_product_number[i] %></span>
+                              <button class="cart-item__input-btn" type="submit" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product_plus(this)">
                                 <img
                                   class="icon"
                                   src="./assets/icons/plus.svg"
@@ -213,12 +213,13 @@
                           </div>
                           <div class="cart-item__ctrl">
                             <button class="cart-item__ctrl-btn">
-                              <img src="./assets/icons/heart-2.svg" alt="" />
+                              <!-- <img src="./assets/icons/heart-2.svg" alt="" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product(this)"/>
                               Thích
-                            </button>
+                            </button> -->
                             <button
                               class="cart-item__ctrl-btn js-toggle"
                               toggle-target="#delete-confirm"
+                              data-product-id="<%= fav_product_id[i] %>" onclick="fav_product(this)"
                             >
                               <img src="./assets/icons/trash.svg" alt="" />
                               Xoá
@@ -227,167 +228,12 @@
                         </div>
                       </div>
                       <div class="cart-item__content-right">
-                        <p class="cart-item__total-price">$47.00</p>
+                        <p class="cart-item__total-price"><%= fav_product_price_per_product[i] %></p>
                       </div>
                     </div>
                   </article>
+                  <% } %>
 
-                  <!-- Cart item 2 -->
-                  <article class="cart-item">
-                    <label class="cart-info__checkbox">
-                      <input
-                        type="checkbox"
-                        name="shipping-adress"
-                        class="cart-info__checkbox-input"
-                        checked
-                      />
-                    </label>
-                    <a href="./product-detail.html">
-                      <img
-                        src="./assets/img/product/item-2.png"
-                        alt=""
-                        class="cart-item__thumb"
-                      />
-                    </a>
-                    <div class="cart-item__content">
-                      <div class="cart-item__content-left">
-                        <h3 class="cart-item__title">
-                          <a href="./product-detail.html">
-                            Lavazza Coffee Blends - Try the Italian Espresso
-                          </a>
-                        </h3>
-                        <p class="cart-item__price-wrap">
-                          $53.00 |
-                          <span class="cart-item__status">In Stock</span>
-                        </p>
-                        <div class="cart-item__ctrl-wrap">
-                          <div
-                            class="cart-item__ctrl cart-item__ctrl--md-block"
-                          >
-                            <div class="cart-item__input">
-                              Loại
-                              <img
-                                class="icon"
-                                src="./assets/icons/arrow-down-2.svg"
-                                alt=""
-                              />
-                            </div>
-                            <div class="cart-item__input">
-                              <button class="cart-item__input-btn">
-                                <img
-                                  class="icon"
-                                  src="./assets/icons/minus.svg"
-                                  alt=""
-                                />
-                              </button>
-                              <span>1</span>
-                              <button class="cart-item__input-btn">
-                                <img
-                                  class="icon"
-                                  src="./assets/icons/plus.svg"
-                                  alt=""
-                                />
-                              </button>
-                            </div>
-                          </div>
-                          <div class="cart-item__ctrl">
-                            <button class="cart-item__ctrl-btn">
-                              <img src="./assets/icons/heart-2.svg" alt="" />
-                              Thích
-                            </button>
-                            <button
-                              class="cart-item__ctrl-btn js-toggle"
-                              toggle-target="#delete-confirm"
-                            >
-                              <img src="./assets/icons/trash.svg" alt="" />
-                              Xoá
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="cart-item__content-right">
-                        <p class="cart-item__total-price">$106.00</p>
-                      </div>
-                    </div>
-                  </article>
-
-                  <!-- Cart item 3 -->
-                  <article class="cart-item">
-                    <label class="cart-info__checkbox">
-                      <input
-                        type="checkbox"
-                        name="shipping-adress"
-                        class="cart-info__checkbox-input"
-                      />
-                    </label>
-                    <a href="./product-detail.html">
-                      <img
-                        src="./assets/img/product/item-3.png"
-                        alt=""
-                        class="cart-item__thumb"
-                      />
-                    </a>
-                    <div class="cart-item__content">
-                      <div class="cart-item__content-left">
-                        <h3 class="cart-item__title">
-                          <a href="./product-detail.html">
-                            Qualità Oro Mountain Grown - Espresso Coffee Beans
-                          </a>
-                        </h3>
-                        <p class="cart-item__price-wrap">
-                          $38.65 |
-                          <span class="cart-item__status">In Stock</span>
-                        </p>
-                        <div class="cart-item__ctrl-wrap">
-                          <div
-                            class="cart-item__ctrl cart-item__ctrl--md-block"
-                          >
-                            <div class="cart-item__input">
-                              Loại
-                              <img
-                                class="icon"
-                                src="./assets/icons/arrow-down-2.svg"
-                                alt=""
-                              />
-                            </div>
-                            <div class="cart-item__input">
-                              <button class="cart-item__input-btn">
-                                <img
-                                  class="icon"
-                                  src="./assets/icons/minus.svg"
-                                  alt=""
-                                />
-                              </button>
-                              <span>1</span>
-                              <button class="cart-item__input-btn">
-                                <img
-                                  class="icon"
-                                  src="./assets/icons/plus.svg"
-                                  alt=""
-                                />
-                              </button>
-                            </div>
-                          </div>
-                          <div class="cart-item__ctrl">
-                            <button class="cart-item__ctrl-btn">
-                              <img src="./assets/icons/heart-2.svg" alt="" />
-                              Thích
-                            </button>
-                            <button
-                              class="cart-item__ctrl-btn js-toggle"
-                              toggle-target="#delete-confirm"
-                            >
-                              <img src="./assets/icons/trash.svg" alt="" />
-                              Xoá
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="cart-item__content-right">
-                        <p class="cart-item__total-price">$38.65</p>
-                      </div>
-                    </div>
-                  </article>
                 </div>
                 <div class="cart-info__bottom">
                   <div class="cart-info__row cart-info__row-md--block">
@@ -402,7 +248,7 @@
                       </a>
                     </div>
                     <a
-                      href="./checkout.html"
+                      href="/checkout"
                       class="cart-info__checkout-all btn btn--primary btn--rounded"
                     >
                       Thanh toán
@@ -434,6 +280,7 @@
           </button>
           <button
             class="btn btn--small btn--danger btn--primary modal__btn btn--no-margin js-toggle"
+            data-product-id="<%= fav_product_id[i] %>" onclick="fav_product(this)"
             toggle-target="#delete-confirm"
           >
             Delete
