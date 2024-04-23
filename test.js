@@ -565,6 +565,13 @@ app.get("/payment", async (req, res) => {
     });
 })
 
+
+app.get("/news", async (req, res) => {
+  res.render("news.ejs",{
+    check:false,
+  });
+});
+
 app.get("reset_password", async (req, res) => {
   res.render("reset-password.ejs")
 })
