@@ -200,7 +200,7 @@
                             Q. Bắc Từ Liêm, Tp Hà Nội
                           </p>
                           <ul class="address-card__list">
-                            <li class="address-card__list-item">Giao đến</li>
+                            <li class="address-card__list-item">Gagshvbjdnkml,;</li>
                             <li class="address-card__list-item">
                               Nhận tại cửa hàng
                             </li>
@@ -212,48 +212,7 @@
                           <button
                             class="cart-info__edit-btn js-toggle"
                             toggle-target="#add-new-address"
-                          >
-                            <img
-                              class="icon"
-                              src="./assets/icons/edit.svg"
-                              alt=""
-                            />
-                            Sửa
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-
-                    <!-- Address card 2 -->
-                    <article class="address-card">
-                      <div class="address-card__left">
-                        <div class="address-card__choose">
-                          <label class="cart-info__checkbox">
-                            <input
-                              type="radio"
-                              name="shipping-adress"
-                              class="cart-info__checkbox-input"
-                            />
-                          </label>
-                        </div>
-                        <div class="address-card__info">
-                          <h3 class="address-card__title"><%= user_name %></h3>
-                          <p class="address-card__desc">
-                            Q. Bắc Từ Liêm, Tp Hà Nội
-                          </p>
-                          <ul class="address-card__list">
-                            <li class="address-card__list-item">Giao đến</li>
-                            <li class="address-card__list-item">
-                              Nhận tại cửa hàng
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                      <div class="address-card__right">
-                        <div class="address-card__ctrl">
-                          <button
-                            class="cart-info__edit-btn js-toggle"
-                            toggle-target="#add-new-address"
+                            onclick="initJsToggle()"
                           >
                             <img
                               class="icon"
@@ -319,7 +278,7 @@
                           </div>
                         </div>
                         <div class="cart-item__content-right">
-                          <p class="cart-item__total-price"><%= fav_product_price[i] %></p>
+                          <p class="cart-item__total-price"><%= fav_product_price_per_product[i] %></p>
                           <div class="cart-item__ctrl">
                             <button class="cart-item__ctrl-btn">
                               <img src="./assets/icons/heart-2.svg" alt="" />
@@ -446,7 +405,7 @@
       style="--content-width: 650px;"
     >
       <div class="modal__content">
-        <form action="" class="form">
+        <form action="/add_address" class="form" method="POST">
           <h2 class="modal__heading">Địa chỉ nhận hàng mới</h2>
           <div class="modal__body">
             <div class="form__row">
@@ -479,7 +438,7 @@
                 <div class="form__text-input form__text-input--small">
                   <input
                     type="tel"
-                    name="phone"
+                    name="phonenumber"
                     id="phone"
                     placeholder="Số điện thoại"
                     class="form__input"
@@ -501,7 +460,7 @@
               >
               <div class="form__text-area">
                 <textarea
-                  name="address"
+                  name="homeaddress"
                   id="address"
                   placeholder="Số nhà, đường"
                   class="form__text-area-input"
@@ -522,10 +481,10 @@
               <div class="form__text-input form__text-input--small">
                 <input
                   type="text"
-                  name=""
-                  placeholder="TP/Quận/Phường"
+                  name="districtaddress"
+                  placeholder="Tỉnh(Thành phố)/Huyện(Quận)/Xã(Phường)"
                   id="city"
-                  readonly
+                  
                   class="form__input js-toggle"
                   toggle-target="#city-dialog"
                 />
@@ -536,17 +495,17 @@
                 />
 
                 <!-- Select dialog -->
-                <div id="city-dialog" class="form__select-dialog hide">
+                <div id="city-dialog" class=" hide">
                   <h2 class="form__dialog-heading d-none d-sm-block">
                     Tỉnh(Thành phố)/Huyện(Quận)/Xã(Phường)
                   </h2>
-                  <button
+                  <!-- <button
                     class="form__close-dialog d-none d-sm-block js-toggle"
                     toggle-target="#city-dialog"
                   >
                     &times
-                  </button>
-                  <div class="form__search">
+                  </button> -->
+                  <!-- <div class="form__search">
                     <input
                       type="text"
                       placeholder="Tìm"
@@ -557,8 +516,8 @@
                       alt=""
                       class="form__search-icon icon"
                     />
-                  </div>
-                  <ul class="form__options-list">
+                  </div> -->
+                  <!-- <ul class="form__options-list">
                     <li class="form__option">Ha Noi</li>
                     <li class="form__option form__option--current">
                       Ho Chi Minh
@@ -586,7 +545,7 @@
                     <li class="form__option">Ho Chi Minh</li>
                     <li class="form__option">Da Nang</li>
                     <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
+                    <li class="form__option">Ho Chi Minh</li> 
                     <li class="form__option">Da Nang</li>
                     <li class="form__option">Ha Noi</li>
                     <li class="form__option">Ho Chi Minh</li>
@@ -597,8 +556,8 @@
                     <li class="form__option">Ha Noi</li>
                     <li class="form__option">Ho Chi Minh</li>
                     <li class="form__option">Da Nang</li>
-                  </ul>
-                </div>
+                  </ul>  -->
+                </div> 
               </div>
               <p class="form__error">Số điện thoại phải là số có 10 chữ số</p>
             </div>
