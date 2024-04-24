@@ -4,14 +4,13 @@
 }
 .header-update .header-update-container {
   padding: 20px 30px;
-  background-color: #eeeeee;
+  background-color: white;
   border-radius: 0 75px 0 0;
 }
 .album .container_Hop .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto;
-  padding: 80px;
 }
 .card-h1 {
   line-height: 60px;
@@ -33,4 +32,85 @@
 }
 .row .col {
   padding: 30px;
+}
+.container_iphone {
+  display: grid;
+  grid-template-columns: 7fr 3fr; /* 7 parts for left, 3 parts for right */
+  gap: 20px;
+  padding-left: 30px;
+  /* background-color: white; */
+  margin-bottom: 50px;
+  margin-top: 50px;
+}
+.smalltitimg img {
+  width: 50%;
+  height: 450px;
+}
+.leftside h1 {
+  font-size: 20px;
+  /* padding: 10px; */
+  line-height: 40px;
+}
+.leftside h2 {
+  font-size: 18px;
+  padding: 10px;
+}
+.leftside strong {
+  font-size: 18px;
+}
+.leftside p {
+  font-size: 16px;
+  /* padding: 10px; */
+  line-height: 40px;
+}
+.container_iphone .rightside {
+  flex: 3;
+  padding: 20px;
+  /* width: 30%; */
+}
+.rightside ul {
+  list-style-type: none; /* Loại bỏ kiểu danh sách mặc định */
+  padding: 0; /* Xóa lề bên trái của danh sách */
+}
+.rightside ul li a {
+  display: grid;
+  grid-template-columns: auto auto;
+  text-decoration: none;
+  color: black;
+}
+.rightside ul li a h3 {
+  margin-top: 0;
+  margin-left: 5px;
+}
+.rightside ul li {
+  margin-top: 30px;
+}
+.rightside ul li img {
+  width: 120px;
+  height: 60px;
+}
+.prosale {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  margin-bottom: 25px;
+}
+.prosale a {
+  text-align: center;
+  text-decoration: none;
+  margin-left: 10px;
+  margin-right: 10px;
+  background-color: #fff;
+  border-radius: 40px;
+}
+.prosale span {
+  text-decoration: line-through;
+}
+.prosale .textmoney {
+  margin-bottom: 20px;
+}
+.prosale img {
+  width: 405px;
+  height: 405px;
+  border-radius: 40px;
+  padding: 20px;
 }

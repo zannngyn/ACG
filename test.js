@@ -615,6 +615,11 @@ app.get("/payment", async (req, res) => {
     price: price,
   });
 });
+app.get("/hotdeal_child_iphone", async (req, res) => {
+  res.render("hotdeal_child_iphone.ejs", {
+    check: false,
+  });
+});
 
 app.get("/hotdeal", async (req, res) => {
   res.render("hotdeal.ejs", {
