@@ -615,6 +615,11 @@ app.get("/payment", async (req, res) => {
     price: price,
   });
 });
+app.get("/hotdeal_child_samsung", async (req, res) => {
+  res.render("hotdeal_child_samsung.ejs", {
+    check: false,
+  });
+});
 app.get("/hotdeal_child_oppo", async (req, res) => {
   res.render("hotdeal_child_oppo.ejs", {
     check: false,
