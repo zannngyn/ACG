@@ -411,8 +411,7 @@
             <div class="form__row">
               <div class="form__group">
                 <label for="name" class="form__label form__label--small"
-                  >Tên</label
-                >
+                  >Tên</label>
                 <div class="form__text-input form__text-input--small">
                   <input
                     type="text"
@@ -460,6 +459,7 @@
               >
               <div class="form__text-area">
                 <textarea
+                  type="text"
                   name="homeaddress"
                   id="address"
                   placeholder="Số nhà, đường"
@@ -476,7 +476,7 @@
             </div>
             <div class="form__group">
               <label for="city" class="form__label form__label--small"
-                >Tỉnh(Thành phố)/Huyện(Quận)/Xã(Phường)</label
+                >Tỉnh/Huyện/Xã</label
               >
               <div class="form__text-input form__text-input--small">
                 <input
@@ -484,80 +484,13 @@
                   name="districtaddress"
                   placeholder="Tỉnh(Thành phố)/Huyện(Quận)/Xã(Phường)"
                   id="city"
-                  
-                  class="form__input js-toggle"
-                  toggle-target="#city-dialog"
+                  class="form__input"
                 />
                 <img
                   src="./assets/icons/form-error.svg"
                   alt=""
                   class="form__input-icon-error"
                 />
-
-                <!-- Select dialog -->
-                <div id="city-dialog" class=" hide">
-                  <h2 class="form__dialog-heading d-none d-sm-block">
-                    Tỉnh(Thành phố)/Huyện(Quận)/Xã(Phường)
-                  </h2>
-                  <!-- <button
-                    class="form__close-dialog d-none d-sm-block js-toggle"
-                    toggle-target="#city-dialog"
-                  >
-                    &times
-                  </button> -->
-                  <!-- <div class="form__search">
-                    <input
-                      type="text"
-                      placeholder="Tìm"
-                      class="form__search-input"
-                    />
-                    <img
-                      src="./assets/icons/search.svg"
-                      alt=""
-                      class="form__search-icon icon"
-                    />
-                  </div> -->
-                  <!-- <ul class="form__options-list">
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option form__option--current">
-                      Ho Chi Minh
-                    </li>
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li> 
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
-                    <li class="form__option">Da Nang</li>
-                    <li class="form__option">Ha Noi</li>
-                    <li class="form__option">Ho Chi Minh</li>
-                    <li class="form__option">Da Nang</li>
-                  </ul>  -->
-                </div> 
               </div>
               <p class="form__error">Số điện thoại phải là số có 10 chữ số</p>
             </div>
@@ -565,7 +498,7 @@
               <label class="form__checkbox">
                 <input
                   type="checkbox"
-                  name=""
+                  name="checkbox"
                   id=""
                   class="form__checkbox-input d-none"
                 />
@@ -583,6 +516,7 @@
               Huỷ
             </button>
             <button
+              type="submit"
               class="btn btn--small btn--primary modal__btn btn--no-margin js-toggle"
               toggle-target="#add-new-address"
             >
@@ -590,6 +524,7 @@
             </button>
           </div>
         </form>
+        <!-- </div> -->
       </div>
       <div class="modal__overlay"></div>
     </div>

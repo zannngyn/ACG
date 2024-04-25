@@ -436,3 +436,8 @@ function fav_product_minus(button) {
 }
 
 
+function reloadPage() {
+    // window.location.reload();
+    // object.reload(forcedReload);
+    location.reload();
+}
