@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js",
-    "sass": "sass scss:assets/css -w"
+    "sass": "sass public/scss:public/assets/css -w"
   },
   "keywords": [],
   "author": "",
