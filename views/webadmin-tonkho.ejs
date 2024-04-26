@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang Quản Trị | Di động High-tech</title>
+    <link rel="stylesheet" href="./assets/css/webadmin.css" />
+  </head>
+  <body>
+    <div class="admin-header">
+      <div class="left-panel">
+        <p>Xin Chào <span>Admin</span></p>
+      </div>
+      <div class="right-panel">
+        <a href="webadmin-home.ejs">
+          <img src="./assets/img/house.png" alt="" class="icon" />Trang chủ
+        </a>
+        <a href="webadmin-dangnhap.ejs">
+          <img src="./assets/img/logout.png" alt="" class="icon" />Đăng xuất
+        </a>
+      </div>
+    </div>
+    <div class="content">
+      <div class="container">
+        <div class="left-menu">
+          <div class="menu-heading">Admin menu</div>
+          <div class="menu-items">
+            <ul>
+              <li><a href="webadmin-home.ejs">Đơn Hàng</a></li>
+              <li><a href="webadmin-tonkho.ejs">Hàng Tồn</a></li>
+              <li>
+                <a href="webadmin-uudai.ejs">Danh sách mail được nhận ưu đãi</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div id="main-content-tonkho">
+          <h1 class="card-h1">Danh sách sản phẩm tồn kho</h1>
+          <div class="product-items">
+            <div class="buttons">
+              <a href="#" onclick="ProTable_Tonkho()">Thêm sản phẩm</a>
+            </div>
+          </div>
+          <div id="products-ton" class="products-ton">
+            <ul>
+              <li class="product-ton-heading">
+                <div class="pro">Ảnh</div>
+                <div class="pro">Hãng</div>
+                <div class="pro">Loại sản phẩm</div>
+                <div class="pro">Tên sản phẩm</div>
+                <div class="pro">Giá</div>
+                <div class="pro">Số lượng</div>
+                <div class="pro">Mô tả</div>
+                <div class="pro">Hủy</div>
+                <div class="pro">Đồng ý</div>
+              </li>
+              <li class="product-ton">
+                <div class="prod">
+                  <input type="file" name="image_upload" />
+                </div>
+                <div class="prod">
+                  <input type="text" name="product_brand" placeholder="Brand" />
+                </div>
+                <div class="prod">
+                  <input type="text" name="product_type" placeholder="Type" />
+                </div>
+                <div class="prod">
+                  <input type="text" name="product_name" placeholder="Name" />
+                </div>
+                <div class="prod">
+                  <input type="text" name="price" placeholder="$100" />
+                </div>
+                <div class="prod">
+                  <input type="text" name="quantity" placeholder="100" />
+                </div>
+                <div class="prod">
+                  <input type="file" name="description" />
+                </div>
+                <div class="prod">
+                  <input type="button" value="Hủy" />
+                </div>
+                <div class="prod">
+                  <input type="button" value="Đồng ý" />
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="product-items">
+            <ul>
+              <li class="product-items-heading">
+                <div class="pro">Ảnh</div>
+                <div class="pro">Hãng</div>
+                <div class="pro">Loại sản phẩm</div>
+                <div class="pro">Tên sản phẩm</div>
+                <div class="pro">Giá</div>
+                <div class="pro">Số Lượng</div>
+                <div class="pro">Mô tả</div>
+                <div class="pro">Sửa</div>
+                <div class="pro">Xóa</div>
+              </li>
+              <li class="product-item">
+                <img
+                  src="https://i.ibb.co/qdYVXbC/0019801-black-550.jpg"
+                  alt=""
+                />
+                <div class="prod">Iphone</div>
+                <div class="prod">Iphone 15</div>
+                <div class="prod">Iphone 15 promax</div>
+                <div class="prod">19890000</div>
+                <div class="prod">10</div>
+                <div class="prod">Mô tả</div>
+                <div class="prod"><a href="#">Sửa</a></div>
+                <div class="prod"><a href="#">Xóa</a></div>
+              </li>
+              <li class="product-item">
+                <img
+                  src="https://i.ibb.co/yqnwtW9/0019802-black-550.jpg"
+                  alt=""
+                />
+                <div class="prod">Iphone</div>
+                <div class="prod">Iphone 15</div>
+                <div class="prod">Iphone 15 promax</div>
+                <div class="prod">19890000</div>
+                <div class="prod">10</div>
+                <div class="prod">Mô tả</div>
+                <div class="prod"><a href="#">Sửa</a></div>
+                <div class="prod"><a href="#">Xóa</a></div>
+              </li>
+              <li class="product-item">
+                <img
+                  src="https://i.ibb.co/qdYVXbC/0019801-black-550.jpg"
+                  alt=""
+                />
+                <div class="prod">Iphone</div>
+                <div class="prod">Iphone 15</div>
+                <div class="prod">Iphone 15 plus</div>
+                <div class="prod">19890000</div>
+                <div class="prod">10</div>
+                <div class="prod">Mô tả</div>
+                <div class="prod"><a href="#">Sửa</a></div>
+                <div class="prod"><a href="#">Xóa</a></div>
+              </li>
+              <li class="product-item">
+                <img
+                  src="https://i.ibb.co/B35hc7s/0019566-titan-xanh-550.jpg"
+                  alt=""
+                />
+                <div class="prod">Iphone</div>
+                <div class="prod">Iphone 15</div>
+                <div class="prod">Iphone 15 promax</div>
+                <div class="prod">19890000</div>
+                <div class="prod">10</div>
+                <div class="prod">Mô tả</div>
+                <div class="prod"><a href="#">Sửa</a></div>
+                <div class="prod"><a href="#">Xóa</a></div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      function ProTable_Tonkho() {
+        var proTable = document.getElementById("products-ton");
+        if (proTable.style.display == "none") proTable.style.display = "block";
+        else proTable.style.display = "none";
+      }
+    </script>
+  </body>
+</html>
