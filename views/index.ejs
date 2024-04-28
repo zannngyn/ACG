@@ -161,7 +161,11 @@
         <div class="home__row">
           <h2 class="home__heading">Sản Phẩm</h2>
           <div class="filter-wrap">
-            <button class="filter-btn js-toggle" toggle-target="#home-filter" onclick="initJsToggle()">
+            <button
+              class="filter-btn js-toggle"
+              toggle-target="#home-filter"
+              onclick="initJsToggle()"
+            >
               Lọc
               <img
                 src="./assets/icons/filter.svg"
@@ -182,12 +186,12 @@
                   <!-- Filter column 1 -->
                   <div class="filter__col">
                     <label for="" class="form__label">Khoảng giá</label>
-                    <div class="filter__form-group">
+                    <!-- <div class="filter__form-group">
                       <div
                         class="filter__form-slider"
                         style="--min-value: 10%; --max-value: 60%;"
                       ></div>
-                    </div>
+                    </div> -->
                     <div class="filter__form-group filter__form-group--inline">
                       <div>
                         <label for="" class="form__label form__label--small">
@@ -317,7 +321,7 @@
                 </div>
               </article>
           </div>
-      <% } %>
+          <% } %>
         </div>
       </section>
     </main>

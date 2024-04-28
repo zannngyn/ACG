@@ -1,5 +1,5 @@
 {
-  "name": "f8-project-08",
+  "name": "smartphone",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,8 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js",
-    "sass": "node-sass -w sass/ -o css/",
-    "compile": "sass public/scss/main.scss public/assets/css/main.css"
+    "sass": "sass public/scss:public/assets/css -w"
   },
   "keywords": [],
   "author": "",
