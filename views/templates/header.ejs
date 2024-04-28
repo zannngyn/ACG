@@ -1301,7 +1301,7 @@
           </div>
         </li>
         <li class="navbar__item">
-          <a href="hotdeal.ejs" class="navbar__link"> KHUYẾN MÃI </a>
+          <a href="/hotdeal" class="navbar__link"> KHUYẾN MÃI </a>
         </li>
         <li class="navbar__item">
           <a href="/news" class="navbar__link"> TIN TỨC </a>
@@ -1314,18 +1314,21 @@
     <% if(check) { %>
     <div class="top-act">
       <div class="top-act__group d-md-none top-act__group--single">
-        <button class="top-act__btn">
-          <img
-            src="./assets/icons/search.svg"
-            alt=""
-            class="icon top-act__icon"
+        <form action="/header_search" method="post">
+          <button class="top-act__btn">
+            <img
+              src="./assets/icons/search.svg"
+              alt=""
+              class="icon top-act__icon"
+            />
+          </button>
+          <input
+            class="search-bar"
+            type="text"
+            name="text"
+            placeholder=" Tìm kiếm sản phẩm"
           />
-        </button>
-        <input
-          class="search-bar"
-          type="text"
-          placeholder=" Tìm kiếm sản phẩm"
-        />
+         </form>
       </div>
 
       <div class="top-act__group d-md-none">
@@ -1491,7 +1494,7 @@
 
             <ul class="user-menu__list">
               <li>
-                <a href="./profile.html" class="user-menu__link">Hồ sơ</a>
+                <a href="/profile" class="user-menu__link">Hồ sơ</a>
               </li>
               <li>
                 <a href="./favourite.html" class="user-menu__link"
