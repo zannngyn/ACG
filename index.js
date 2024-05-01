@@ -93,7 +93,7 @@ async function checkPRODUCT(minPrice, maxPrice, product_name, product_brand, pro
   let productBRAND = [];
   let productNAME =[];
   let productPRICE = [];
-  let productHEART = []
+  let productHEART = [];
 
   result.rows.forEach((row) => {
     productID.push(row.productid);
@@ -612,7 +612,7 @@ app.get("/payment", async (req, res) => {
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand] = await checkUSER_fav(id);
    
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price,tong] = await checkPRICE(id, fav_product_id);
 
 
     res.render("payment.ejs", {
@@ -631,6 +631,7 @@ app.get("/payment", async (req, res) => {
       fav_product_name: fav_product_name,
       fav_product_price: fav_product_price,
       fav_product_brand: fav_product_brand,
+      tong: tong,
       price: price,
     });
   } else {
