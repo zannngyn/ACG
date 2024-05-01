@@ -707,6 +707,240 @@ app.get("/send_email", async (req, res) => {
   }
 })
 
+app.get("/news", async (req, res) => {
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+
+    res.render("news.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("news.ejs", {
+      check: check,
+    })
+  }
+})
+
+app.get("/hotdeal_child_xiaomi", async (req, res) => {
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    
+    res.render("hotdeal_child_xiaomi.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("news.ejs", {
+      check: check,
+    })
+  }
+})
+
+app.get("/hotdeal_child_samsung", async (req, res) => {
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    
+    res.render("hotdeal_child_samsung.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("news.ejs", {
+      check: check,
+    })
+  }
+})
+
+app.get("/hotdeal_child_oppo", async (req, res) => {
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    
+    res.render("hotdeal_child_oppo.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("news.ejs", {
+      check: check,
+    })
+  }
+})
+
+app.get("/hotdeal_child_iphone", async (req, res) => {
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    
+    res.render("hotdeal_child_iphone.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("news.ejs", {
+      check: check,
+    })
+  }
+})
+
+app.get("/hotdeal", async (req, res) => {
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    
+    res.render("hotdeal.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("news.ejs", {
+      check: check,
+    })
+  }
+})
+
+
+app.get("/webadmin_home", async (req, res) => {
+  res.render("webadmin-home.ejs", {
+    check: false,
+  });
+});
+
+app.get("/webadmin_tonkho", async (req, res) => {
+  res.render("webadmin-tonkho.ejs", {
+    check: false,
+  });
+});
+
+app.get("/webadmin_dangnhap", async (req, res) => {
+  res.render("webadmin-dangnhap.ejs", {
+    check: false,
+  });
+});
+app.get("/webadmin_uudai", async (req, res) => {
+  res.render("webadmin-uudai.ejs", {
+    check: false,
+  });
+});
+
 app.get("/reset_password", async (req, res) => {
   res.render("reset-password.ejs")
 })

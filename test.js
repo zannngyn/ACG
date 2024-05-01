@@ -519,6 +519,7 @@ app.get("/favourite", async (req, res) => {
     fav_product_brand: fav_product_brand,
     price: price,
   });
+}
 });
 
 app.get("/checkout", async (req, res) => {
@@ -560,7 +561,8 @@ app.get("/checkout", async (req, res) => {
     fav_product_price: fav_product_price,
     fav_product_brand: fav_product_brand,
     price: price,
-  });
+  })
+}
 });
 
 app.get("/delivery", async (req, res) => {
@@ -603,6 +605,7 @@ app.get("/delivery", async (req, res) => {
     fav_product_brand: fav_product_brand,
     price: price,
   });
+}
 });
 
 app.get("/payment", async (req, res) => {
@@ -645,6 +648,7 @@ app.get("/payment", async (req, res) => {
     fav_product_brand: fav_product_brand,
     price: price,
   });
+}
 });
 app.get("/hotdeal_child_xiaomi", async (req, res) => {
   res.render("hotdeal_child_xiaomi.ejs", {
