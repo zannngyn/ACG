@@ -194,7 +194,7 @@
                               />
                             </div>
                             <div class="cart-item__input">
-                              <button class="cart-item__input-btn" type="submit" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product_minus(this)">
+                              <button class="cart-item__input-btn" type="submit" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product_minus(this); reloadPage()">
                                 <img
                                   class="icon"
                                   src="./assets/icons/minus.svg"
@@ -202,7 +202,7 @@
                                 />
                               </button>
                               <span><%= fav_product_number[i] %></span>
-                              <button class="cart-item__input-btn" type="submit" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product_plus(this)">
+                              <button class="cart-item__input-btn" type="submit" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product_plus(this); reloadPage()">
                                 <img
                                   class="icon"
                                   src="./assets/icons/plus.svg"
@@ -213,13 +213,13 @@
                           </div>
                           <div class="cart-item__ctrl">
                             <button class="cart-item__ctrl-btn">
-                              <!-- <img src="./assets/icons/heart-2.svg" alt="" data-product-id="<%= fav_product_id[i] %>" onclick="fav_product(this)"/>
+                              <!-- <img src="./assets/icons/heart-2.svg" alt="" data-product-id="" onclick="fav_product(this)"/>
                               Thích
                             </button> -->
                             <button
                               class="cart-item__ctrl-btn js-toggle"
                               toggle-target="#delete-confirm"
-                              data-product-id="<%= fav_product_id[i] %>" onclick="fav_product(this)"
+                              data-product-id="<%= fav_product_id[i] %>" onclick="fav_product(this); reloadPage()"
                             >
                               <img src="./assets/icons/trash.svg" alt="" />
                               Xoá

@@ -35,7 +35,22 @@ CREATE TABLE user_fav(
 
 CREATE TABLE user_address (
     userid INT REFERENCES users(userid),
-    address VARCHAR(50) NOT NULL
+    name VARCHAR(50) NOT NULL,
+    phonenumber INT NOT Null,
+    districtaddress VARCHAR(50) NOT NULL,
+    homeaddress VARCHAR(50) NOT Null
+);
+
+CREATE TABLE Orders (
+    OrderID SERIAL PRIMARY KEY,
+    useremail VARCHAR(50),
+    orderproduct VARCHAR (100),
+    OrderDate VARCHAR (50),
+    TotalAmount INT,
+    phonenumber INT,
+    districtaddress VARCHAR(150),
+    homeaddress VARCHAR(150),
+    Status VARCHAR(150)
 );
 
 select product.productid, product.image, product.brand, product.name, product.price

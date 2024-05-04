@@ -1314,13 +1314,21 @@
     <% if(check) { %>
     <div class="top-act">
       <div class="top-act__group d-md-none top-act__group--single">
-        <button class="top-act__btn">
-          <img
-            src="./assets/icons/search.svg"
-            alt=""
-            class="icon top-act__icon"
+        <form action="/header_search" method="post">
+          <button class="top-act__btn">
+            <img
+              src="./assets/icons/search.svg"
+              alt=""
+              class="icon top-act__icon"
+            />
+          </button>
+          <input
+            class="search-bar"
+            type="text"
+            name="text"
+            placeholder=" Tìm kiếm sản phẩm"
           />
-        </button>
+         </form>
       </div>
 
       <div class="top-act__group d-md-none">
@@ -1394,7 +1402,7 @@
               alt=""
               class="icon top-act__icon"
             />
-            <span class="top-act__title">$<%= price %></span>
+            <span class="top-act__title"><%= price %></span>
           </button>
 
           <!-- Dropdown -->
@@ -1436,7 +1444,7 @@
               <div class="act-dropdown__bottom">
                 <div class="act-dropdown__row">
                   <span class="act-dropdown__label">Tổng</span>
-                  <span class="act-dropdown__value">$<%= price %></span>
+                  <span class="act-dropdown__value"><%= price %></span>
                 </div>
                 <div class="act-dropdown__row">
                   <span class="act-dropdown__label">VAT</span>
@@ -1444,11 +1452,11 @@
                 </div>
                 <div class="act-dropdown__row">
                   <span class="act-dropdown__label">Giảm giá</span>
-                  <span class="act-dropdown__value">$0.00</span>
+                  <span class="act-dropdown__value">0.00</span>
                 </div>
                 <div class="act-dropdown__row act-dropdown__row--bold">
                   <span class="act-dropdown__label">Tất toán</span>
-                  <span class="act-dropdown__value">$<%= price %></span>
+                  <span class="act-dropdown__value"><%= price %></span>
                 </div>
               </div>
               <div class="act-dropdown__checkout">
@@ -1486,7 +1494,7 @@
 
             <ul class="user-menu__list">
               <li>
-                <a href="./profile.html" class="user-menu__link">Hồ sơ</a>
+                <a href="/profile" class="user-menu__link">Hồ sơ</a>
               </li>
               <li>
                 <a href="./favourite.html" class="user-menu__link"
@@ -1519,7 +1527,7 @@
         </div>
       </div>
     </div>
-    <% } else { %>
+      <% } else { %>
     <div class="top-act">
       <a href="/sign_in" class="btn btn--text d-md-none">ĐĂNG NHẬP</a>
       <a href="/sign_up" class="top-act__sign-up btn btn--primary">ĐĂNG KÝ</a>

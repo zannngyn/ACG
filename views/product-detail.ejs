@@ -129,19 +129,19 @@
               </a>
             </li>
             <li>
-              <a href="#!" class="breadcrumbs__link">
+              <a href="/?product_brand=<%= product_brand %>" class="breadcrumbs__link">
                 <%= product_brand %>
                 <img src="./assets/icons/arrow-right.svg" alt="" />
               </a>
             </li>
             <li>
-              <a href="#!" class="breadcrumbs__link">
+              <a href="/?product_series= <%= product_series %>" class="breadcrumbs__link">
                 <%= product_series %>
                 <img src="./assets/icons/arrow-right.svg" alt="" />
               </a>
             </li>
             <li>
-              <a href="#!" class="breadcrumbs__link breadcrumbs__link--current"
+              <a href="/?=<%= product_name %>" class="breadcrumbs__link breadcrumbs__link--current"
                 ><%= product_name %></a
               >
             </li>
@@ -208,7 +208,7 @@
               </div>
             </div>
             <div class="col-7 col-xl-6 col-lg-12">
-              <form action="" class="form">
+              <!-- <form action="" class="form"> -->
                 <section class="prod-info">
                   <h1 class="prod-info__heading">
                     <%= product_name %>
@@ -235,10 +235,11 @@
                           <div class="prod-info__row">
                             <button
                               class="btn btn--primary prod-info__add-to-cart"
+                              data-product-id="<%= product_id %>" onclick="fav_product(this); reloadPage()"
                             >
                               Thêm vào giỏ
                             </button>
-                            <button class="like-btn prod-info__like-btn">
+                            <button class="like-btn <%= product_heart %>  prod-info__like-btn">
                               <img
                                 src="./assets/icons/heart.svg"
                                 alt=""
@@ -256,7 +257,7 @@
                     </div>
                   </div>
                 </section>
-              </form>
+              <!-- </form> -->
             </div>
           </div>
         </div>

@@ -1,15 +1,17 @@
-import express, { json, response } from "express";
+import express, { json, response} from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
-import bcrypt from "bcrypt";
+import bcrypt, { hash } from "bcrypt"
 import passport from "passport";
 import { Strategy } from "passport-local";
-import GoogleStrategy from "passport-google-oauth2";
+import GoogleStrategy from "passport-google-oauth2"
 import session from "express-session";
 import env from "dotenv";
+import nodemailer from "nodemailer";
+import mammoth from "mammoth";
+// import { assign } from "nodemailer/lib/shared";
 // import axios from "axios";
 
-const { Pool } = pg;
 // sử dụng express, tạo cổng, tạo số lần sử dụng bcrypt, kết nối .evn
 const app = express();
 const port = 3000;
@@ -17,6 +19,7 @@ const saltRounds = 10;
 env.config();
 
 // sử dụng bodyparser và express cho foder public
+// app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
@@ -28,10 +31,12 @@ app.use(
     saveUninitialized: true,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24,
-    },
+    }
   })
-);
+)
 
+// liên kết với cơ sở dữ liệu
+const { Pool } = pg;
 // sử dụng passport và session
 app.use(passport.initialize());
 app.use(passport.session());
@@ -47,73 +52,51 @@ const db = new Pool({
 });
 db.connect();
 
+
 async function checkHEART(userid, productid) {
-  const result = await db.query(
-    "SELECT * FROM user_fav WHERE userid = $1 AND productid = $2",
-    [userid, productid]
-  );
+  const result = await db.query("SELECT * FROM user_fav WHERE userid = $1 AND productid = $2",
+  [userid, productid]);
   // console.log(result);
   const check = result.rowCount;
   // console.log(check);
   if (check > 0) {
-    return "like-btn--liked";
+    return 'like-btn--liked';
   } else {
-    return;
+    return ;
   }
 }
 
-//kiểm tra sản phẩm trong cơ sở dữ liệu
-// async function checkPRODUCT() {
-//   const result = await db.query("SELECT *  FROM product");
-//   let productID =[];
-//   let productIMG = [];
-//   let productBRAND = [];
-//   let productNAME =[];
-//   let productPRICE = [];
-
-//   result.rows.forEach((id) => {
-//     productID.push(id.productid);
-//   })
-//   result.rows.forEach((img) => {
-//     productIMG.push(img.image);
-//   });
-//   result.rows.forEach((brand) => {
-//     productBRAND.push(brand.brand)
-//   })
-//   result.rows.forEach((name) => {
-//     productNAME.push(name.name);
-//   });
-//   result.rows.forEach((price) => {
-//     productPRICE.push(price.price);
-//   });
-//   return [productID, productIMG, productNAME, productPRICE, productBRAND];
-// };
 
 //kiểm tra sản phẩm dựa trên giá người dùng chọn
-async function checkPRODUCT(minPrice, maxPrice, product_name, userid) {
+async function checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series, userid) {
   let query;
   let params = [];
 
   if (product_name && minPrice && maxPrice) {
-    query =
-      "SELECT * FROM product WHERE price BETWEEN $1 AND $2 AND UPPER(brand) LIKE UPPER($3)";
+    query = "SELECT * FROM product WHERE price BETWEEN $1 AND $2 AND UPPER(name) LIKE UPPER($3)";
     params.push(minPrice, maxPrice, `%${product_name}%`);
   } else if (minPrice && maxPrice) {
     query = "SELECT * FROM product WHERE price BETWEEN $1 AND $2";
     params.push(minPrice, maxPrice);
   } else if (product_name) {
-    query = "SELECT * FROM product WHERE UPPER(brand) LIKE UPPER($1)";
+    query = "SELECT * FROM product WHERE UPPER(name) LIKE UPPER($1)";
     params.push(`%${product_name}%`);
+  } else if (product_brand){
+    query = "SELECT * FROM product WHERE UPPER(brand) LIKE UPPER($1)";
+    params.push(`%${product_brand}%`);
+  } else if (product_series){
+    query = "SELECT product.productid, product.image, product.brand, product.name, product.price FROM product INNER JOIN productdetail ON product.productid = productdetail.productid WHERE UPPER(series) LIKE UPPER($1)";
+    params.push(`%${product_series}%`);
   } else {
     query = "SELECT * FROM product";
   }
 
   const result = await db.query(query, params);
 
-  let productID = [];
+  let productID =[];
   let productIMG = [];
   let productBRAND = [];
-  let productNAME = [];
+  let productNAME =[];
   let productPRICE = [];
   let productHEART = [];
 
@@ -122,84 +105,58 @@ async function checkPRODUCT(minPrice, maxPrice, product_name, userid) {
     productIMG.push(row.image);
     productBRAND.push(row.brand);
     productNAME.push(row.name);
-    productPRICE.push(row.price);
+    productPRICE.push(row.price.toLocaleString('vi', {style : 'currency', currency : 'VND'}));
   });
 
-  for (let i = 0; i < productID.length; i++) {
-    productHEART.push(await checkHEART(userid, productID[i]));
-  }
-  // console.log(productHEART);
-  // const test = await checkHEART(userid,1);
-  // console.log("tesst " + test);
+    for (let i = 0; i < productID.length; i++) {
+      productHEART.push( await checkHEART(userid,productID[i]))
+    }
+
   return [
-    productID,
-    productIMG,
-    productNAME,
-    productPRICE,
-    productBRAND,
-    productHEART,
+    productID, 
+    productIMG, 
+    productNAME, 
+    productPRICE, 
+    productBRAND, 
+    productHEART
   ];
 }
 
 //kiểm tra sản phẩm yêu thích của người dùng
-// async function checkUSER_fav(id, productIMG) {
-//   const result = await db.query("SELECT * FROM user_fav WHERE userid = $1", [id]);
-//   let fav_productid =[];
-//   let fav_productimg = [];
-
-//   result.rows.forEach((id) => {
-//     fav_productid.push(id.productid);
-//   });
-
-//   const fav_product_id = fav_productid;
-//   // console.log(fav_product_id);
-
-//   for (i = 0; i < fav_product_id.length; i++){
-//     fav_productimg.push(productIMG[fav_product_id[i]]);
-//   }
-//   const fav_product_img = fav_productimg;
-//   // console.log(fav_product_img);
-
-//   return [fav_product_id, fav_product_img]
-// };
-
-//kiểm tra sản phẩm yêu thích của người dùng
 async function checkUSER_fav(id) {
-  const result = await db.query(
-    "SELECT product.productid, product.image, product.brand, product.name, product.price FROM user_fav INNER JOIN product ON user_fav.productid = product.productid INNER JOIN users ON user_fav.userid = users.userid WHERE user_fav.userid = $1",
-    [id]
-  );
-  let productID = [];
+  const result = await db.query("SELECT product.productid, product.image, product.brand, product.name, product.price, user_fav.number FROM user_fav INNER JOIN product ON user_fav.productid = product.productid INNER JOIN users ON user_fav.userid = users.userid WHERE user_fav.userid = $1",
+                                [id]);
+  let productID =[];
   let productIMG = [];
   let productBRAND = [];
-  let productNAME = [];
+  let productNAME =[];
   let productPRICE = [];
+  let productFAVNUMBER = [];
 
   result.rows.forEach((row) => {
     productID.push(row.productid);
     productIMG.push(row.image);
     productBRAND.push(row.brand);
     productNAME.push(row.name);
-    productPRICE.push(row.price);
+    productPRICE.push(row.price.toLocaleString('vi', {style : 'currency', currency : 'VND'}));
+    productFAVNUMBER.push(row.number);
   });
 
-  return [productID, productIMG, productNAME, productPRICE, productBRAND];
-}
+  return [productID, productIMG, productNAME, productPRICE, productBRAND, productFAVNUMBER];
+};
 
 // kiểm tra từng sản phẩm
 async function checkPRODUCT_DETAIL(item) {
-  const result = await db.query(
-    "SELECT *  FROM productdetail WHERE productid = $1",
-    [item]
-  );
+  const result = await db.query("SELECT *  FROM productdetail WHERE productid = $1", [item]);
   let productIMG1 = [];
   let productIMG2 = [];
   let productIMG3 = [];
   let productIMG4 = [];
-  let productNAME = [];
+  let productNAME =[];
   let productPRICE = [];
   let productBRAND = [];
-  let productID = [];
+  let productSERIES = [];
+  let productID =[];
   let productDESCRIPTION = [];
 
   result.rows.forEach((row) => {
@@ -209,104 +166,250 @@ async function checkPRODUCT_DETAIL(item) {
     productIMG3.push(row.image3);
     productIMG4.push(row.image4);
     productBRAND.push(row.brand);
+    productSERIES.push(row.series)
     productNAME.push(row.name);
-    productPRICE.push(row.price);
+    productPRICE.push(row.price.toLocaleString('vi', {style : 'currency', currency : 'VND'}));
     productDESCRIPTION.push(row.description);
   });
 
   return [
-    productID,
-    productIMG1,
-    productIMG2,
-    productIMG3,
-    productIMG4,
-    productBRAND,
-    productNAME,
-    productPRICE,
-    productDESCRIPTION,
+    productID, 
+    productIMG1, 
+    productIMG2, 
+    productIMG3, 
+    productIMG4, 
+    productBRAND, 
+    productNAME, 
+    productPRICE, 
+    productDESCRIPTION, 
+    productSERIES
   ];
-}
+};
 
 //kiểm tra tổng giá trị sản phẩm
-async function checkPRICE(fav_product_id) {
+async function checkPRICE(userid, fav_product_id) {
   let PRICE = 0;
+  let fav_product_price_per_product = [];
+  let price = 0;
+  let tong = 0; 
 
   for (let i = 0; i < fav_product_id.length; i++) {
     const fav_product = fav_product_id[i];
-    const result = await db.query(
-      "SELECT price FROM product WHERE productid = $1",
-      [fav_product]
-    );
+    const result = await db.query("SELECT product.price, user_fav.number FROM product inner join user_fav ON product.productid = user_fav.productid WHERE userid = $1 AND user_fav.productid = $2", 
+    [userid, fav_product]);
     let productPRICE = [];
-    result.rows.forEach((price) => {
-      productPRICE.push(price.price);
+    let number = [];
+    result.rows.forEach((row) => {
+      productPRICE.push(row.price);
+      number.push(row.number);
     });
-    PRICE = PRICE + productPRICE[0];
-  }
+    price = productPRICE[0]*number[0];
+    fav_product_price_per_product.push(price.toLocaleString('vi', {style : 'currency', currency : 'VND'}));
+  };
 
-  return PRICE;
+  for (let i = 0; i < fav_product_id.length; i++) {
+    const fav_product = fav_product_id[i];
+    const result = await db.query("SELECT product.price, user_fav.number FROM product inner join user_fav ON product.productid = user_fav.productid WHERE userid = $1 AND user_fav.productid = $2", 
+    [userid, fav_product]);
+    let productPRICE = [];
+    let number = [];
+    result.rows.forEach((row) => {
+      productPRICE.push(row.price);
+      number.push(row.number);
+    });
+    PRICE = PRICE + productPRICE[0]*number[0];
+  };
+    PRICE = PRICE.toLocaleString('vi', {style : 'currency', currency : 'VND'});
+
+  for (let i = 0; i < fav_product_id.length; i++) {
+    const fav_product = fav_product_id[i];
+    const result = await db.query("SELECT product.price, user_fav.number FROM product inner join user_fav ON product.productid = user_fav.productid WHERE userid = $1 AND user_fav.productid = $2", 
+    [userid, fav_product]);
+    let productPRICE = [];
+    let number = [];
+    result.rows.forEach((row) => {
+      productPRICE.push(row.price);
+      number.push(row.number);
+    });
+    tong = tong + number[0];
+  };
+
+  return [
+    fav_product_price_per_product, 
+    PRICE, 
+    tong
+  ];
 }
 
-// đưa ra product chính
-// app.get("/", async (req, res) => {
-//   // lấy thông tin chi tiết sản phẩm
-//   const [productID,,,,] =await checkPRODUCT();
-//   const [,productIMG,,,] = await checkPRODUCT();
-//   const [,,productNAME,,] = await checkPRODUCT();
-//   const [,,,productPRICE,] = await checkPRODUCT();
-//   const [,,,,productBRAND] = await checkPRODUCT();
+//kiểm tra địa chỉ người dùngngườidùng
+async function checkADDRESS(user_id) {
+  let name = [];
+  let phone_number = [];
+  let home_address = [];
+  let district_address = [];
 
-//   // kiểm tra xem có người dùng đăng nhập không?
-//   const check = req.isAuthenticated();
-//   const profile = req.user;
-//   if (profile) {
-//     const id = profile.userid;
-//     const email = profile.email;
-//     const displayname = profile.displayname;
-//     const picture = profile.picture;
+  const result = await db.query("SELECT * FROM user_address WHERE userid = $1", [user_id])
 
-//     // lấy ra thông tin chi tiết sản phẩm yêu thích
-//     const [fav_product_id,,,,] = await checkUSER_fav(id, productIMG);
-//     const [,fav_product_img,,,] = await checkUSER_fav(id, productIMG);
-//     const price = await checkPRICE(fav_product_id);
+  result.rows.forEach((row) => {
+    name.push(row.name);
+    phone_number.push(row.phonenumber);
+    home_address.push(row.homeaddress);
+    district_address.push(row.districtaddress);
+  });
 
-//       res.render("index.ejs", {
-//         product_id: productID,
-//         product_img: productIMG,
-//         product_name: productNAME,
-//         product_price: productPRICE,
-//         product_brand: productBRAND,
-//         check: check,
-//         email: email,
-//         user_name: displayname,
-//         picture: picture,
-//         fav_product_id: fav_product_id,
-//         fav_product_img: fav_product_img,
-//         price: price,
-//       });
+  return [
+    name, 
+    phone_number, 
+    home_address, 
+    district_address
+  ];
+}
 
-//   } else {
-//     res.render("index.ejs", {
-//       product_id: productID,
-//       product_img: productIMG,
-//       product_name: productNAME,
-//       product_price: productPRICE,
-//       product_brand: productBRAND,
-//       check: check,
-//     });
-//   }
+//gửi email thông báo đã mua hàng
+async function send_BUYED_EMAIL(user_email, products, numbers) {
+  let productsContent = '';
+  for (let i = 0; i < products.length; i++) {
+    productsContent += `${products[i]} x ${numbers[i]} \n`;
+  }
 
-// });
+  let transporter = nodemailer.createTransport({
+    host: "live.smtp.mailtrap.io",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "api",
+      pass: "93062445dfe6e7e503aa6491fecc18f5",
+    }
+  });
+
+  let info = await transporter.sendMail({
+    from: "didonghigh-tech@demomailtrap.com",
+    to: user_email,
+    subject: "cảm ơn bạn đã mua hàng tại Di Động High-Tech",
+    text: `
+    Các sản phẩm của bạn đã được đóng gói:
+    Các sản phẩm trong đơn hàng của bạn đã được đóng gói và giao
+    cho đơn vị vận chuyển. Bạn vui lòng đợi nhà vận chuyển cập nhật trạng thái
+    giao hàng trong thời gian tới
+    Các sản phẩm đang được đóng gói:
+    ${productsContent}`,
+  });
+
+  console.log("Message sent: %s", info.messageId);
+}
+
+//thay đổi mật khẩu cho người dùng quên mật khẩu
+async function send_FORGET_PASSWORD(user_email) {
+
+  let transporter = nodemailer.createTransport({
+    host: "live.smtp.mailtrap.io",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "api",
+      pass: "93062445dfe6e7e503aa6491fecc18f5",
+    }
+  });
+
+  let info = await transporter.sendMail({
+    from: "didonghigh-tech@demomailtrap.com",
+    to: user_email,
+    subject: "bạn đang có yêu cầu lấy lại mật khẩu tại Di Động High-Tech",
+    text: `
+    mật khẩu mới tạm thời cảu bạn là "Haidv2806"
+    Hãy đăng nhập vào web và sử dụng mật khẩu này rồi thay đổi mật khẩu
+    tại profile của mình!`,
+  });
+
+  console.log("Message sent: %s", info.messageId);
+}
+
+//đổi password
+async function change_password(email, password_1) {
+  bcrypt.hash(password_1, saltRounds, async (err, hash) => {
+    if (err) {
+      console.error("error hashing password:", err);
+    } else {
+      const result = await db.query("UPDATE users SET password = $1 WHERE email = $2  RETURNING *",
+      [hash, email])
+    }
+  });
+}
+
+//tạo đơn hàng
+async function createORDER(email, products, numbers, phonenumber, totalamount, districtaddress, homeaddress) {
+  let orderProduct = '';
+  for (let i = 0; i < products.length; i++) {
+    orderProduct += `${products[i]} x ${numbers[i]};`;
+  }
+
+
+  // Lấy ngày, tháng và năm
+  var currentDate = new Date();
+
+  var day = currentDate.getDate();
+  var month = currentDate.getMonth() + 1; // Tháng bắt đầu từ 0 nên cần cộng thêm 1
+  var year = currentDate.getFullYear();
+
+  const orderdate = day + '/' + month + '/' + year;
+
+  const result = await db.query("INSERT INTO orders (useremail, orderproduct, orderdate, totalamount, phonenumber, districtaddress, homeaddress, Status) VALUES ($1,$2,$3,$4,$5,$6,$7, $8)",
+                                [email, orderProduct, orderdate, totalamount, phonenumber[0], districtaddress[0], homeaddress[0], 'đang chuẩn bị hàng'])
+}
+
+// kiểm tra đơn hàng
+async function checkORDER() {
+  const result = await db.query("SELECT * FROM orders")
+
+  let orderID = [];
+  let email = [];
+  let orderPRODUCT = [];
+  let orderDATE = [];
+  let totalamount = [];
+  let phone_number = [];
+  let district_address = [];
+  let home_address = [];
+  let status = [];
+
+  result.rows.forEach((row) => {
+    orderID.push(row.orderid);
+    email.push(row.useremail);
+    orderPRODUCT.push(row.orderproduct);
+    orderDATE.push(row.orderdate);
+    totalamount.push(row.totalamount.toLocaleString('vi', {style : 'currency', currency : 'VND'}));
+    phone_number.push(row.phonenumber);
+    district_address.push(row.districtaddress);
+    home_address.push(row.homeaddress);
+    status.push(row.status);
+  });
+
+  return [
+    orderID,
+    email,
+    orderPRODUCT,
+    orderDATE,
+    totalamount,
+    phone_number,
+    district_address,
+    home_address,
+    status
+  ];
+}
+
+//xoá các sản phẩm đã yêu thích.
+
+
 
 //tìm kiếm sản phẩm dựa trên giá
 app.get("/", async (req, res) => {
   const minPrice = req.query.minPrice;
   const maxPrice = req.query.maxPrice;
   const product_name = req.query.product_name;
+  const product_brand = req.query.product_brand;
+  const product_series = req.query.product_series;
 
-  // lấy thông tin chi tiết sản phẩm
-  const [productID, productIMG, productNAME, productPRICE, productBRAND] =
-    await checkPRODUCT(minPrice, maxPrice, product_name);
+  // lấy thông tin chi tiết sản phẩm 
+  const [productID,productIMG,productNAME,productPRICE,productBRAND,] =await checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series);
 
   // kiểm tra xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
@@ -317,37 +420,35 @@ app.get("/", async (req, res) => {
     const displayname = profile.displayname;
     const picture = profile.picture;
 
-    const [, , , , , productHEART] = await checkPRODUCT(
-      minPrice,
-      maxPrice,
-      product_name,
-      id
-    );
-    // console.log(productHEART);
+    const [,,,,,productHEART] = await checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series, id);
 
     // lấy ra thông tin chi tiết sản phẩm yêu thích
-    const [fav_product_id, fav_product_img, , ,] = await checkUSER_fav(
-      id,
-      productIMG
-    );
-    // const [,fav_product_img,,,] = await checkUSER_fav(id, productIMG);
-    const price = await checkPRICE(fav_product_id);
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
 
-    res.render("index.ejs", {
-      product_id: productID,
-      product_img: productIMG,
-      product_name: productNAME,
-      product_price: productPRICE,
-      product_brand: productBRAND,
-      product_heart: productHEART,
-      check: check,
-      email: email,
-      user_name: displayname,
-      picture: picture,
-      fav_product_id: fav_product_id,
-      fav_product_img: fav_product_img,
-      price: price,
-    });
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+
+      res.render("index.ejs", {
+        product_id: productID,
+        product_img: productIMG,
+        product_name: productNAME,
+        product_price: productPRICE,
+        product_brand: productBRAND,
+        product_heart: productHEART,
+
+        check: check,
+        email: email,
+        user_name: displayname,
+        picture: picture,
+
+        fav_product_id: fav_product_id,
+        fav_product_img: fav_product_img,
+        fav_product_name: fav_product_name,
+        fav_product_price: fav_product_price,
+        fav_product_brand: fav_product_brand,
+        price: price,
+      });
+
   } else {
     res.render("index.ejs", {
       product_id: productID,
@@ -359,47 +460,35 @@ app.get("/", async (req, res) => {
       check: check,
     });
   }
+  
 });
 
 // đưa ra chi tiết từng sản phẩm
 app.get("/product_detail", async (req, res) => {
   const item = req.query.id;
 
+
   // lấy thông tin chi tiết sản phẩm
-  const [
-    productID,
-    productIMG1,
-    productIMG2,
-    productIMG3,
-    productIMG4,
-    productBRAND,
-    productNAME,
-    productPRICE,
-    productDESCRIPTION,
-  ] = await checkPRODUCT_DETAIL(item);
-  // const [,productIMG1,,,,,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,productIMG2,,,,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,productIMG3,,,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,,productIMG4,,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,,,productBRAND,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,,,,productNAME,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,,,,,productPRICE,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,,,,,,productDESCRIPTION] =await checkPRODUCT_DETAIL(item);
+  const [productID,productIMG1,productIMG2,productIMG3,productIMG4,productBRAND,productNAME,productPRICE,productDESCRIPTION,productSERIES] =await checkPRODUCT_DETAIL(item);
 
   // xem sét xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
   const profile = req.user;
   if (profile) {
-    const id = profile.id;
+    const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
     const picture = profile.picture;
 
     // lấy ra thông tin chi tiết của sản phẩm yêu thích
-    const [fav_product_id, fav_product_img, , ,] = await checkUSER_fav(id);
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
     // const [,fav_product_img,,,] = await checkUSER_fav(id);
 
-    const price = await checkPRICE(fav_product_id);
+    const [,,,,,productHEART] = await checkPRODUCT(id);
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+
 
     res.render("product-detail.ejs", {
       product_id: productID,
@@ -410,15 +499,24 @@ app.get("/product_detail", async (req, res) => {
       product_name: productNAME,
       product_price: productPRICE,
       product_brand: productBRAND,
+      product_series: productSERIES,
       product_description: productDESCRIPTION,
+
+      product_heart: productHEART,
+
       check: check,
       email: email,
       user_name: displayname,
       picture: picture,
+
       fav_product_id: fav_product_id,
       fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
       price: price,
     });
+
   } else {
     res.render("product-detail.ejs", {
       product_id: productID,
@@ -429,256 +527,573 @@ app.get("/product_detail", async (req, res) => {
       product_name: productNAME,
       product_price: productPRICE,
       product_brand: productBRAND,
+      product_series: productSERIES,
       product_description: productDESCRIPTION,
+      product_heart: 0,
       check: check,
     });
   }
 });
 
 app.get("/favourite", async (req, res) => {
-  // const item = req.query.id;
-
-  // lấy thông tin chi tiết sản phẩm
-  // const [productID,,,,,,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,productIMG1,,,,,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,productIMG2,,,,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,productIMG3,,,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,,productIMG4,,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,,,productBRAND,,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,,,,productNAME,,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,,,,,productPRICE,] =await checkPRODUCT_DETAIL(item);
-  // const [,,,,,,,,productDESCRIPTION] =await checkPRODUCT_DETAIL(item);
-
-  // xem sét xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
-  const profile = req.user;
 
-  const id = profile.userid;
-  const email = profile.email;
-  const displayname = profile.displayname;
-  const picture = profile.picture;
+  if (check) {
+    const profile = req.user;
 
-  // lấy ra thông tin chi tiết của sản phẩm yêu thích
-  const [
-    fav_product_id,
-    fav_product_img,
-    fav_product_name,
-    fav_product_price,
-    fav_product_brand,
-  ] = await checkUSER_fav(id);
-  // const [,fav_product_img,,,] = await checkUSER_fav(id);
-  // const [,,fav_product_name,,] = await checkUSER_fav(id);
-  // const [,,,fav_product_price,] = await checkUSER_fav(id);
-  // const [,,,,fav_product_brand] = await checkUSER_fav(id);
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
 
-  const price = await checkPRICE(fav_product_id);
+    // lấy ra thông tin chi tiết của sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
 
-  res.render("favourite.ejs", {
-    // product_id: productID,
-    // product_img1: productIMG1,
-    // product_img2: productIMG2,
-    // product_img3: productIMG3,
-    // product_img4: productIMG4,
-    // product_name: productNAME,
-    // product_price: productPRICE,
-    // product_brand: productBRAND,
-    // product_description: productDESCRIPTION,
-    check: check,
-    email: email,
-    user_name: displayname,
-    picture: picture,
-    fav_product_id: fav_product_id,
-    fav_product_img: fav_product_img,
-    fav_product_name: fav_product_name,
-    fav_product_price: fav_product_price,
-    fav_product_brand: fav_product_brand,
-    price: price,
-  });
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+
+
+    res.render("favourite.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      fav_product_number: fav_product_number,
+      fav_product_price_per_product: fav_product_price_per_product,
+      price: price,
+    });
+  } else {
+      res.redirect("/");
+  }
 });
+
 
 app.get("/checkout", async (req, res) => {
   const check = req.isAuthenticated();
-  const profile = req.user;
 
-  const id = profile.userid;
-  const email = profile.email;
-  const displayname = profile.displayname;
-  const picture = profile.picture;
+  if (check) {
+    const profile = req.user;
 
-  // lấy ra thông tin chi tiết của sản phẩm yêu thích
-  const [
-    fav_product_id,
-    fav_product_img,
-    fav_product_name,
-    fav_product_price,
-    fav_product_brand,
-  ] = await checkUSER_fav(id);
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
 
-  // const [fav_product_id,,,,] = await checkUSER_fav(id);
-  // const [,fav_product_img,,,] = await checkUSER_fav(id);
-  // const [,,fav_product_name,,] = await checkUSER_fav(id);
-  // const [,,,fav_product_price,] = await checkUSER_fav(id);
-  // const [,,,,fav_product_brand] = await checkUSER_fav(id);
+    // lấy ra thông tin chi tiết của sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
+   
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price, tong] = await checkPRICE(id, fav_product_id);
 
-  const price = await checkPRICE(fav_product_id);
 
-  res.render("checkout.ejs", {
-    check: check,
-    email: email,
-    user_name: displayname,
-    picture: picture,
-    fav_product_id: fav_product_id,
-    fav_product_img: fav_product_img,
-    fav_product_name: fav_product_name,
-    fav_product_price: fav_product_price,
-    fav_product_brand: fav_product_brand,
-    price: price,
-  });
-});
+    res.render("checkout.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
 
-app.get("/delivery", async (req, res) => {
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      fav_product_number: fav_product_number,
+      fav_product_price_per_product: fav_product_price_per_product,
+      tong: tong,
+      price: price,
+    });
+  } else {
+    res.redirect("/");
+  }
+
+})
+
+app.get("/delivery", async (req,res) => {
   const check = req.isAuthenticated();
-  const profile = req.user;
 
-  const id = profile.userid;
-  const email = profile.email;
-  const displayname = profile.displayname;
-  const picture = profile.picture;
+  if (check) {
+    const profile = req.user;
 
-  // lấy ra thông tin chi tiết của sản phẩm yêu thích
-  const [
-    fav_product_id,
-    fav_product_img,
-    fav_product_name,
-    fav_product_price,
-    fav_product_brand,
-  ] = await checkUSER_fav(id);
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
 
-  // const [fav_product_id,,,,] = await checkUSER_fav(id);
-  // const [,fav_product_img,,,] = await checkUSER_fav(id);
-  // const [,,fav_product_name,,] = await checkUSER_fav(id);
-  // const [,,,fav_product_price,] = await checkUSER_fav(id);
-  // const [,,,,fav_product_brand] = await checkUSER_fav(id);
+    //lấy ra thông tin địa chỉ người dùng
+    const [name, phone_number, home_address, district_address] = await checkADDRESS(id)
 
-  const price = await checkPRICE(fav_product_id);
+    // lấy ra thông tin chi tiết của sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
+   
+    // kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price, tong] = await checkPRICE(id, fav_product_id);
 
-  res.render("delivery.ejs", {
-    check: check,
-    email: email,
-    user_name: displayname,
-    picture: picture,
-    fav_product_id: fav_product_id,
-    fav_product_img: fav_product_img,
-    fav_product_name: fav_product_name,
-    fav_product_price: fav_product_price,
-    fav_product_brand: fav_product_brand,
-    price: price,
-  });
-});
+
+    res.render("delivery.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      name: name,
+      phone_number: phone_number,
+      home_address: home_address,
+      district_address: district_address,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      fav_product_number: fav_product_number,
+      fav_product_price_per_product: fav_product_price_per_product,
+      tong: tong,
+      price: price,
+    });
+  } else {
+    res.redirect("/")
+  }
+})
 
 app.get("/payment", async (req, res) => {
   const check = req.isAuthenticated();
-  const profile = req.user;
 
-  const id = profile.userid;
-  const email = profile.email;
-  const displayname = profile.displayname;
-  const picture = profile.picture;
+  if (check) {
+    const profile = req.user;
 
-  // lấy ra thông tin chi tiết của sản phẩm yêu thích
-  const [
-    fav_product_id,
-    fav_product_img,
-    fav_product_name,
-    fav_product_price,
-    fav_product_brand,
-  ] = await checkUSER_fav(id);
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
 
-  // const [fav_product_id,,,,] = await checkUSER_fav(id);
-  // const [,fav_product_img,,,] = await checkUSER_fav(id);
-  // const [,,fav_product_name,,] = await checkUSER_fav(id);
-  // const [,,,fav_product_price,] = await checkUSER_fav(id);
-  // const [,,,,fav_product_brand] = await checkUSER_fav(id);
+    //lấy ra thông tin địa chỉ người dùng
+    const [name, phone_number, home_address, district_address] = await checkADDRESS(id)
+    
+    // lấy ra thông tin chi tiết của sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand] = await checkUSER_fav(id);
+   
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,tong] = await checkPRICE(id, fav_product_id);
 
-  const price = await checkPRICE(fav_product_id);
 
-  res.render("payment.ejs", {
-    check: check,
-    email: email,
-    user_name: displayname,
-    picture: picture,
-    fav_product_id: fav_product_id,
-    fav_product_img: fav_product_img,
-    fav_product_name: fav_product_name,
-    fav_product_price: fav_product_price,
-    fav_product_brand: fav_product_brand,
-    price: price,
-  });
-});
+    res.render("payment.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      name: name,
+      phone_number: phone_number,
+      home_address: home_address,
+      district_address: district_address,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      tong: tong,
+      price: price,
+    });
+  } else {
+      res.redirect("/");
+  }
+})
+
+app.get("/profile", async (req, res) => {
+  const check = req.isAuthenticated();
+
+  if (check) {
+    const profile = req.user;
+
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    //lấy ra thông tin địa chỉ người dùng
+    const [name, phone_number, home_address, district_address] = await checkADDRESS(id)
+    
+    // lấy ra thông tin chi tiết của sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
+
+    // kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+
+
+    res.render("profile.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      name: name,
+      phone_number: phone_number,
+      home_address: home_address,
+      district_address: district_address,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    });
+  } else {
+      res.redirect("/");
+  }
+})
+
+app.get("/send_email", async (req, res) => {
+  const check = req.isAuthenticated();
+
+  if (check) {
+    const profile = req.user;
+
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    //lấy ra thông tin địa chỉ người dùng
+    const [name, phone_number, home_address, district_address] = await checkADDRESS(id)
+    
+    // lấy ra thông tin chi tiết của sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
+
+    // kiểm tra giá sản phẩm
+    let PRICE = 0;
+
+    for (let i = 0; i < fav_product_id.length; i++) {
+      const fav_product = fav_product_id[i];
+      const result = await db.query("SELECT product.price, user_fav.number FROM product inner join user_fav ON product.productid = user_fav.productid WHERE userid = $1 AND user_fav.productid = $2", 
+      [id, fav_product]);
+      let productPRICE = [];
+      let number = [];
+      result.rows.forEach((row) => {
+        productPRICE.push(row.price);
+        number.push(row.number);
+      });
+      PRICE = PRICE + productPRICE[0]*number[0];
+    };
+
+    const price = PRICE;
+
+    //tạo đơn hàng mới
+    const createorder = await createORDER(email, fav_product_name, fav_product_number, phone_number, price, district_address, home_address)
+
+    //gửi email đơn hàng cho người dùng
+    // const send_email = await send_BUYED_EMAIL(email, fav_product_name, fav_product_number)
+    res.redirect("/profile")
+  } else {
+      res.redirect("/");
+  }
+})
+
+app.get("/news", async (req, res) => {
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+
+    res.render("news.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("news.ejs", {
+      check: check,
+    })
+  }
+})
+
 app.get("/hotdeal_child_xiaomi", async (req, res) => {
-  res.render("hotdeal_child_xiaomi.ejs", {
-    check: false,
-  });
-});
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    
+    res.render("hotdeal_child_xiaomi.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("hotdeal_child_xiaomi.ejs", {
+      check: check,
+    })
+  }
+})
+
 app.get("/hotdeal_child_samsung", async (req, res) => {
-  res.render("hotdeal_child_samsung.ejs", {
-    check: false,
-  });
-});
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    
+    res.render("hotdeal_child_samsung.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("hotdeal_child_samsung.ejs", {
+      check: check,
+    })
+  }
+})
+
 app.get("/hotdeal_child_oppo", async (req, res) => {
-  res.render("hotdeal_child_oppo.ejs", {
-    check: false,
-  });
-});
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    
+    res.render("hotdeal_child_oppo.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("hotdeal_child_oppo.ejs", {
+      check: check,
+    })
+  }
+})
+
 app.get("/hotdeal_child_iphone", async (req, res) => {
-  res.render("hotdeal_child_iphone.ejs", {
-    check: false,
-  });
-});
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    
+    res.render("hotdeal_child_iphone.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("hotdeal_child_iphone.ejs", {
+      check: check,
+    })
+  }
+})
 
 app.get("/hotdeal", async (req, res) => {
-  res.render("hotdeal.ejs", {
-    check: false,
-  });
-});
+  const check = req.isAuthenticated();
+  if (check) {
+    const id = profile.userid;
+    const email = profile.email;
+    const displayname = profile.displayname;
+    const picture = profile.picture;
+
+    // lấy ra thông tin chi tiết sản phẩm yêu thích
+    const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
+
+
+    //kiểm tra giá sản phẩm
+    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    
+    res.render("hotdeal.ejs", {
+      check: check,
+      email: email,
+      user_name: displayname,
+      picture: picture,
+
+      fav_product_id: fav_product_id,
+      fav_product_img: fav_product_img,
+      fav_product_name: fav_product_name,
+      fav_product_price: fav_product_price,
+      fav_product_brand: fav_product_brand,
+      price: price,
+    })
+  } else {
+    res.render("hotdeal.ejs", {
+      check: check,
+    })
+  }
+})
+
 
 app.get("/webadmin_home", async (req, res) => {
-  res.render("webadmin-home.ejs", {
-    check: false,
-  });
+  const checking = req.isAuthenticated();
+if (checking) {
+  const check = req.user.email;
+  if (check == process.env.ADMIN) {
+    //kiểm tra đơn hàng
+    const [orderID, email, orderPRODUCT, orderDATE, totalamount, phone_number, district_address, home_address, status] = await checkORDER();
+    res.render("webadmin-home.ejs", {
+      orderid: orderID,
+      email: email,
+      order_product: orderPRODUCT,
+      order_date: orderDATE,
+      totalamount: totalamount,
+      phone_number: phone_number,
+      district_address: district_address,
+      home_address: home_address,
+      status: status,
+    });
+  } else {
+    res.redirect("/webadmin_dangnhap")
+  }
+} else {
+  res.redirect("/webadmin_dangnhap")
+}
 });
 
 app.get("/webadmin_tonkho", async (req, res) => {
-  res.render("webadmin-tonkho.ejs", {
-    check: false,
-  });
+  const checking = req.isAuthenticated();
+if (checking) {
+  const check = req.user.email;
+  if (check == process.env.ADMIN) {
+    res.render("webadmin-tonkho.ejs", {
+
+    });
+  } else {
+    res.redirect("/webadmin_dangnhap")
+  }
+} else {
+  res.redirect("/webadmin_dangnhap")
+}
 });
 
 app.get("/webadmin_dangnhap", async (req, res) => {
   res.render("webadmin-dangnhap.ejs", {
-    check: false,
+
   });
 });
 app.get("/webadmin_uudai", async (req, res) => {
-  res.render("webadmin-uudai.ejs", {
-    check: false,
-  });
+  const checking = req.isAuthenticated();
+if (checking) {
+  const check = req.user.email;
+  if (check == process.env.ADMIN) {
+    res.render("webadmin-uudai.ejs", {
+
+    });
+  } else {
+    res.redirect("/webadmin_dangnhap")
+  }
+} else {
+  res.redirect("/webadmin_dangnhap")
+}
 });
 
-app.get("reset_password", async (req, res) => {
-  res.render("reset-password.ejs");
-});
 
-app.get("reset_password_emailed", async (req, res) => {
-  res.render("reset_password_emailed.ejs");
-});
+app.post("/webadmin_dang_nhap", 
+  passport.authenticate("admin", {
+    successRedirect: "/webadmin_home",
+    failureRedirect: "/webadmin_dangnhap",
+  })
+);
+
+app.get("/reset_password", async (req, res) => {
+  res.render("reset-password.ejs")
+})
+
+
+app.get("/new_password", async (req, res) => {
+  res.render("new-password.ejs")
+})
+
 
 app.get("/sign_up", async (req, res) => {
-  res.render("sign-up.ejs");
+  res.render("sign-up.ejs")
 });
 
 app.get("/sign_in", async (req, res) => {
-  res.render("sign-in.ejs");
+  res.render("sign-in.ejs")
 });
 
 // đăng nhập google
@@ -709,19 +1124,38 @@ app.get("/sign_out", (req, res) => {
 });
 
 //kiểm tra giá trị tìm kiếm của người dùng
-app.post("/search", async (req, res) => {
+app.post("/search", async (req,res) => {
   const minPrice = req.body.minPrice;
   const maxPrice = req.body.maxPrice;
   const product_name = req.body.text;
   console.log(product_name);
-  res.redirect(
-    "/?minPrice=" +
-      minPrice +
-      "&maxPrice=" +
-      maxPrice +
-      "&product_name=" +
-      product_name
-  );
+  res.redirect('/?minPrice=' + minPrice + '&maxPrice=' + maxPrice +'&product_name=' + product_name);
+});
+
+app.post("/header_search", async (req,res) => {
+  const product_name = req.body.text;
+  console.log(product_name);
+  res.redirect('/?product_name=' + product_name);
+});
+
+// taọ address cho người dùng dùn
+app.post("/add_address", async (req, res) => {
+  const name = req.body.name;
+  const phone_number = req.body.phonenumber;
+  const home_address = req.body.homeaddress;
+  const district_address = req.body.districtaddress;
+  const checkbox = req.body.checkbox;
+  const user_id = req.user.userid;
+
+  try {
+    const result = await db.query("INSERT INTO  user_address VALUES ($1, $2, $3, $4, $5)",
+    [user_id, name, phone_number,district_address,home_address]);
+
+    res.redirect("/delivery");
+  } catch (error) {
+    console.log(err);
+  }
+
 });
 
 // tạo sản phẩm yêu thích mới
@@ -732,29 +1166,33 @@ app.post("/user_favourite", async (req, res) => {
     // const product_id = req.params.product_id;
     console.log(product_id);
     const user_id = req.user.userid;
+    console.log(user_id);
+    const check = await checkHEART(user_id, product_id)
 
-    const check = await checkHEART(user_id, product_id);
-
-    if (check == "like-btn--liked") {
+    if (check == 'like-btn--liked') {
       try {
-        const result = await db.query(
-          "DELETE FROM user_fav WHERE userid = $1 AND productid = $2 RETURNING *",
-          [user_id, product_id]
-        );
+        const result = await db.query("DELETE FROM user_fav WHERE userid = $1 AND productid = $2 RETURNING *",
+        [user_id, product_id]);
         console.log("Xoá sản phẩm yêu thích thành công");
-        return res.redirect("/");
+        try {
+          return res.redirect(200 ,"/")
+        } catch (error) {
+          console.log(err);
+        }
       } catch (err) {
         console.log(err);
         res.redirect("/");
       }
     } else {
       try {
-        const result = await db.query(
-          "INSERT INTO user_fav VALUES ($1, $2, $3) RETURNING *",
-          [user_id, product_id, 1]
-        );
+        const result = await db.query("INSERT INTO user_fav VALUES ($1, $2, $3) RETURNING *",
+        [user_id, product_id, 1]);
         console.log("tạo sản phẩm yêu thích thành công");
-        return res.redirect("/");
+        try {
+          return res.redirect(200 ,"/")
+        } catch (error) {
+          console.log(err);
+        }
       } catch (err) {
         console.log(err);
         res.redirect("/");
@@ -772,10 +1210,8 @@ app.patch("/user_favourite_plus", async (req, res) => {
     const product_id = req.body.product_id;
     const user_id = req.user.userid;
     try {
-      const result = await db.query(
-        "UPDATE user_fav SET number = number + 1 WHERE productid = $1 AND userid = $2 RETURNING *",
-        [user_id, product_id]
-      );
+      const result = await db.query("UPDATE user_fav SET number = number + 1 WHERE userid = $1 AND productid = $2 RETURNING *",
+      [user_id, product_id]);
       console.log("tạo sản phẩm yêu thích thêm 1 thành công thành công");
       res.redirect("/favourite");
     } catch (err) {
@@ -794,10 +1230,8 @@ app.post("/user_favourite_minus", async (req, res) => {
     const product_id = req.body.product_id;
     const user_id = req.user.userid;
     try {
-      const result = await db.query(
-        "UPDATE user_fav SET number = number - 1 WHERE productid = $1 AND userid = $2 RETURNING *",
-        [user_id, product_id]
-      );
+      const result = await db.query("UPDATE user_fav SET number = number - 1 WHERE userid = $1 AND productid = $2 RETURNING *",
+      [user_id, product_id]);
       console.log("tạo sản phẩm yêu thích trừ 1 thành công thành công");
       res.redirect("/favourite");
     } catch (err) {
@@ -809,50 +1243,103 @@ app.post("/user_favourite_minus", async (req, res) => {
   }
 });
 
+//quên mật khẩu và đổi mật khẩu thành Haidv2806 đồng thời gửi email về cho người dùng
+app.post("/forget_password", async (req, res) => {
+  const email = req.body.email;
+
+  const result = await send_FORGET_PASSWORD(email);
+  const result2 = await change_password(email, "Haidv2806")
+  res.redirect("/sign_in")
+})
+
+//thay đổi password của người dùng
+app.post("/change_password", async (req, res) => {
+  const check = req.isAuthenticated();
+
+  if (check) {
+    const email = req.user.email;
+    const password_1 = req.body.password_1;
+    const password_2 = req.body.password_2;
+
+    if (password_1 == password_2) {
+      const result = await change_password(email, password_1)
+      res.redirect("/profile")
+    } else {
+      res.redirect("/new_passwoord");
+      console.log("mật khẩu không giống nhau!");
+    }
+  } else {
+    res.redirect("/")
+  }
+})
+
+//thêm sản phẩm
+app.post("/add_product", async (req, res) => {
+  const img_1 = req.body.image_upload_1;
+  const img_2 = req.body.image_upload_2;
+  const img_3 = req.body.image_upload_3;
+  const img_4 = req.body.image_upload_4;
+  const brand = req.body.product_brand;
+  const series = req.body.product_type;
+  const name = req.body.product_name;
+  const price = req.body.price;
+  const description = req.file.description;
+  console.log(img_1);
+  console.log(img_2);
+  console.log(img_3);
+  console.log(img_4);
+  console.log(brand);
+  console.log(series);
+  console.log(name);
+  console.log(price);
+  console.log(description);
+
+  // var result = await mammoth.extractRawText({path: description})
+  // console.log(result);
+
+})
+
 // tạo tài khoản mới bằng email và mật khẩu
 app.post("/sign_up", async (req, res) => {
-  const email = req.body.username;
+  const email = req.body.email;
   const password_1 = req.body.password_1;
   const password_2 = req.body.password_2;
-  try {
-    const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
-    if (checkResult.rows.length > 0) {
-      res.redirect("/sign_in");
-      console.log("đã có tài khoản");
-    } else {
-      if (password_1 === password_2) {
-        bcrypt.hash(password_1, saltRounds, async (err, hash) => {
-          if (err) {
-            console.error("error hashing password:", err);
-          } else {
-            const result = await db.query(
-              "INSERT INTO users (email, password, displayname, picture) VALUES ($1, $2, $3, $4) RETURNING *",
-              [email, hash, "user", "https://i.ibb.co/DL59hYp/image.png"]
-            );
-            const user = result.rows[0];
-            req.login(user, (err) => {
-              console.log(err);
-              console.log("đăng ký thành công");
-              res.redirect("/");
-            });
-          }
-        });
+  console.log(email);
+  console.log(password_1);
+  console.log(password_2);
+    try {
+      const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+      if (checkResult.rows.length > 0) {
+        res.redirect("/sign_in");
+        console.log("đã có tài khoản");
       } else {
-        res.redirect("/sign_up", {
-          // tao_tk_err: "mật khẩu phải giống nhau!",
-        });
-        console.log("mật khẩu không giống nhau");
+        if (password_1 === password_2) {
+          bcrypt.hash(password_1, saltRounds, async (err, hash) => {
+            if (err) {
+              console.error("error hashing password:", err);
+            } else {
+              const result = await db.query("INSERT INTO users (email, password, displayname, picture) VALUES ($1, $2, $3, $4) RETURNING *",
+              [email, hash, "user", "https://i.ibb.co/DL59hYp/image.png"]);
+              const user = result.rows[0];
+              req.login(user, (err) => {
+                console.log(err);
+                console.log("đăng ký thành công");
+                res.redirect("/");
+              });
+            }
+          });
+        } else {
+          res.redirect("/sign_up")
+          console.log("mật khẩu không giống nhau");
+        }
       }
+    } catch (err) {
+      console.log(err);
     }
-  } catch (err) {
-    console.log(err);
-  }
+
 });
 
-app.post(
-  "/sign_in",
+app.post("/sign_in", 
   passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/sign_in",
@@ -863,14 +1350,13 @@ app.post(
 passport.use(
   "local",
   new Strategy(async function verify(username, password, cb) {
-    console.log(username);
+
     try {
       const result = await db.query("SELECT * FROM users WHERE email = $1 ", [
         username,
       ]);
       if (result.rows.length > 0) {
         const user = result.rows[0];
-        console.log(user.picture);
         const storedHashedPassword = user.password;
         bcrypt.compare(password, storedHashedPassword, (err, valid) => {
           if (err) {
@@ -889,6 +1375,43 @@ passport.use(
       }
     } catch (err) {
       console.log(err);
+    }
+  })
+);
+
+// kiểm tra đang nhập bằng admin
+passport.use(
+  "admin",
+  new Strategy(async function verify(username, password, cb) {
+    if (username == process.env.ADMIN) {
+      try {
+        const result = await db.query("SELECT * FROM users WHERE email = $1 ", [
+          username,
+        ]);
+        if (result.rows.length > 0) {
+          const user = result.rows[0];
+          const storedHashedPassword = user.password;
+          bcrypt.compare(password, storedHashedPassword, (err, valid) => {
+            if (err) {
+              console.error("Error comparing passwords:", err);
+              return cb(err);
+            } else {
+              if (valid) {
+                return cb(null, user);
+              } else {
+                return cb(null, false);
+              }
+            }
+          });
+        } else {
+          return cb("User not found");
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      console.log("Không đúng admin");
+      res.redirect("/webadmin_dangnhap")
     }
   })
 );
@@ -933,6 +1456,7 @@ passport.serializeUser((user, cb) => {
 passport.deserializeUser((user, cb) => {
   cb(null, user);
 });
+
 
 // đưa ra cổng đang chạy
 app.listen(port, () => {
