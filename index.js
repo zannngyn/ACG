@@ -7,7 +7,8 @@ import { Strategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2"
 import session from "express-session";
 import env from "dotenv";
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
+import mammoth from "mammoth";
 // import { assign } from "nodemailer/lib/shared";
 // import axios from "axios";
 
@@ -18,6 +19,7 @@ const saltRounds = 10;
 env.config();
 
 // sử dụng bodyparser và express cho foder public
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
@@ -319,6 +321,7 @@ async function send_FORGET_PASSWORD(user_email) {
   console.log("Message sent: %s", info.messageId);
 }
 
+//đổi password
 async function change_password(email, password_1) {
   bcrypt.hash(password_1, saltRounds, async (err, hash) => {
     if (err) {
@@ -330,6 +333,67 @@ async function change_password(email, password_1) {
   });
 }
 
+//tạo đơn hàng
+async function createORDER(email, products, numbers, phonenumber, totalamount, districtaddress, homeaddress) {
+  let orderProduct = '';
+  for (let i = 0; i < products.length; i++) {
+    orderProduct += `${products[i]} x ${numbers[i]};`;
+  }
+
+
+  // Lấy ngày, tháng và năm
+  var currentDate = new Date();
+
+  var day = currentDate.getDate();
+  var month = currentDate.getMonth() + 1; // Tháng bắt đầu từ 0 nên cần cộng thêm 1
+  var year = currentDate.getFullYear();
+
+  const orderdate = day + '/' + month + '/' + year;
+
+  const result = await db.query("INSERT INTO orders (useremail, orderproduct, orderdate, totalamount, phonenumber, districtaddress, homeaddress, Status) VALUES ($1,$2,$3,$4,$5,$6,$7, $8)",
+                                [email, orderProduct, orderdate, totalamount, phonenumber[0], districtaddress[0], homeaddress[0], 'đang chuẩn bị hàng'])
+}
+
+// kiểm tra đơn hàng
+async function checkORDER() {
+  const result = await db.query("SELECT * FROM orders")
+
+  let orderID = [];
+  let email = [];
+  let orderPRODUCT = [];
+  let orderDATE = [];
+  let totalamount = [];
+  let phone_number = [];
+  let district_address = [];
+  let home_address = [];
+  let status = [];
+
+  result.rows.forEach((row) => {
+    orderID.push(row.orderid);
+    email.push(row.useremail);
+    orderPRODUCT.push(row.orderproduct);
+    orderDATE.push(row.orderdate);
+    totalamount.push(row.totalamount.toLocaleString('vi', {style : 'currency', currency : 'VND'}));
+    phone_number.push(row.phonenumber);
+    district_address.push(row.districtaddress);
+    home_address.push(row.homeaddress);
+    status.push(row.status);
+  });
+
+  return [
+    orderID,
+    email,
+    orderPRODUCT,
+    orderDATE,
+    totalamount,
+    phone_number,
+    district_address,
+    home_address,
+    status
+  ];
+}
+
+//xoá các sản phẩm đã yêu thích.
 
 
 
@@ -700,7 +764,29 @@ app.get("/send_email", async (req, res) => {
     // lấy ra thông tin chi tiết của sản phẩm yêu thích
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
 
-    const send_email = await send_BUYED_EMAIL(email, fav_product_name, fav_product_number)
+    // kiểm tra giá sản phẩm
+    let PRICE = 0;
+
+    for (let i = 0; i < fav_product_id.length; i++) {
+      const fav_product = fav_product_id[i];
+      const result = await db.query("SELECT product.price, user_fav.number FROM product inner join user_fav ON product.productid = user_fav.productid WHERE userid = $1 AND user_fav.productid = $2", 
+      [id, fav_product]);
+      let productPRICE = [];
+      let number = [];
+      result.rows.forEach((row) => {
+        productPRICE.push(row.price);
+        number.push(row.number);
+      });
+      PRICE = PRICE + productPRICE[0]*number[0];
+    };
+
+    const price = PRICE;
+
+    //tạo đơn hàng mới
+    const createorder = await createORDER(email, fav_product_name, fav_product_number, phone_number, price, district_address, home_address)
+
+    //gửi email đơn hàng cho người dùng
+    // const send_email = await send_BUYED_EMAIL(email, fav_product_name, fav_product_number)
     res.redirect("/profile")
   } else {
       res.redirect("/");
@@ -919,27 +1005,75 @@ app.get("/hotdeal", async (req, res) => {
 
 
 app.get("/webadmin_home", async (req, res) => {
-  res.render("webadmin-home.ejs", {
-    check: false,
-  });
+  const checking = req.isAuthenticated();
+if (checking) {
+  const check = req.user.email;
+  if (check == process.env.ADMIN) {
+    //kiểm tra đơn hàng
+    const [orderID, email, orderPRODUCT, orderDATE, totalamount, phone_number, district_address, home_address, status] = await checkORDER();
+    res.render("webadmin-home.ejs", {
+      orderid: orderID,
+      email: email,
+      order_product: orderPRODUCT,
+      order_date: orderDATE,
+      totalamount: totalamount,
+      phone_number: phone_number,
+      district_address: district_address,
+      home_address: home_address,
+      status: status,
+    });
+  } else {
+    res.redirect("/webadmin_dangnhap")
+  }
+} else {
+  res.redirect("/webadmin_dangnhap")
+}
 });
 
 app.get("/webadmin_tonkho", async (req, res) => {
-  res.render("webadmin-tonkho.ejs", {
-    check: false,
-  });
+  const checking = req.isAuthenticated();
+if (checking) {
+  const check = req.user.email;
+  if (check == process.env.ADMIN) {
+    res.render("webadmin-tonkho.ejs", {
+
+    });
+  } else {
+    res.redirect("/webadmin_dangnhap")
+  }
+} else {
+  res.redirect("/webadmin_dangnhap")
+}
 });
 
 app.get("/webadmin_dangnhap", async (req, res) => {
   res.render("webadmin-dangnhap.ejs", {
-    check: false,
+
   });
 });
 app.get("/webadmin_uudai", async (req, res) => {
-  res.render("webadmin-uudai.ejs", {
-    check: false,
-  });
+  const checking = req.isAuthenticated();
+if (checking) {
+  const check = req.user.email;
+  if (check == process.env.ADMIN) {
+    res.render("webadmin-uudai.ejs", {
+
+    });
+  } else {
+    res.redirect("/webadmin_dangnhap")
+  }
+} else {
+  res.redirect("/webadmin_dangnhap")
+}
 });
+
+
+app.post("/webadmin_dang_nhap", 
+  passport.authenticate("admin", {
+    successRedirect: "/webadmin_home",
+    failureRedirect: "/webadmin_dangnhap",
+  })
+);
 
 app.get("/reset_password", async (req, res) => {
   res.render("reset-password.ejs")
@@ -1136,6 +1270,32 @@ app.post("/change_password", async (req, res) => {
   }
 })
 
+//thêm sản phẩm
+app.post("/add_product", async (req, res) => {
+  const img_1 = req.body.image_upload_1;
+  const img_2 = req.body.image_upload_2;
+  const img_3 = req.body.image_upload_3;
+  const img_4 = req.body.image_upload_4;
+  const brand = req.body.product_brand;
+  const series = req.body.product_type;
+  const name = req.body.product_name;
+  const price = req.body.price;
+  const description = req.file.description;
+  console.log(img_1);
+  console.log(img_2);
+  console.log(img_3);
+  console.log(img_4);
+  console.log(brand);
+  console.log(series);
+  console.log(name);
+  console.log(price);
+  console.log(description);
+
+  // var result = await mammoth.extractRawText({path: description})
+  // console.log(result);
+
+})
+
 // tạo tài khoản mới bằng email và mật khẩu
 app.post("/sign_up", async (req, res) => {
   const email = req.body.email;
@@ -1187,14 +1347,13 @@ app.post("/sign_in",
 passport.use(
   "local",
   new Strategy(async function verify(username, password, cb) {
-    console.log(username)
+
     try {
       const result = await db.query("SELECT * FROM users WHERE email = $1 ", [
         username,
       ]);
       if (result.rows.length > 0) {
         const user = result.rows[0];
-        console.log(user.picture);
         const storedHashedPassword = user.password;
         bcrypt.compare(password, storedHashedPassword, (err, valid) => {
           if (err) {
@@ -1213,6 +1372,43 @@ passport.use(
       }
     } catch (err) {
       console.log(err);
+    }
+  })
+);
+
+// kiểm tra đang nhập bằng admin
+passport.use(
+  "admin",
+  new Strategy(async function verify(username, password, cb) {
+    if (username == process.env.ADMIN) {
+      try {
+        const result = await db.query("SELECT * FROM users WHERE email = $1 ", [
+          username,
+        ]);
+        if (result.rows.length > 0) {
+          const user = result.rows[0];
+          const storedHashedPassword = user.password;
+          bcrypt.compare(password, storedHashedPassword, (err, valid) => {
+            if (err) {
+              console.error("Error comparing passwords:", err);
+              return cb(err);
+            } else {
+              if (valid) {
+                return cb(null, user);
+              } else {
+                return cb(null, false);
+              }
+            }
+          });
+        } else {
+          return cb("User not found");
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      console.log("Không đúng admin");
+      res.redirect("/webadmin_dangnhap")
     }
   })
 );

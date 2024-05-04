@@ -41,6 +41,18 @@ CREATE TABLE user_address (
     homeaddress VARCHAR(50) NOT Null
 );
 
+CREATE TABLE Orders (
+    OrderID SERIAL PRIMARY KEY,
+    useremail VARCHAR(50),
+    orderproduct VARCHAR (100),
+    OrderDate VARCHAR (50),
+    TotalAmount INT,
+    phonenumber INT,
+    districtaddress VARCHAR(150),
+    homeaddress VARCHAR(150),
+    Status VARCHAR(150)
+);
+
 select product.productid, product.image, product.brand, product.name, product.price
 from user_fav
             inner join product on user_fav.productid = product.productid

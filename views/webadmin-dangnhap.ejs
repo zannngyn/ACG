@@ -106,12 +106,12 @@
             <h2 class="logo__title">DI ĐỘNG HIGH-TECH</h2>
           </a>
           <h1 class="auth__heading">TRANG QUẢN TRỊ</h1>
-          <form action="webadmin-home.ejs" class="form auth__form">
+          <form action="/webadmin_dang_nhap" class="form auth__form" method="post">
             <div class="form__group">
               <div class="form__text-input">
                 <input
                   type="email"
-                  name=""
+                  name="username"
                   id=""
                   placeholder="Email"
                   class="form__input"
@@ -135,7 +135,7 @@
               <div class="form__text-input">
                 <input
                   type="password"
-                  name=""
+                  name="password"
                   id=""
                   placeholder="Mật khẩu"
                   class="form__input"
@@ -156,18 +156,13 @@
               <p class="form__error">Mật khẩu phải dài hơn 6 kí tự</p>
             </div>
             <div class="form__group auth__btn-group">
-              <a href="webadmin-dangnhap.ejs">
                 <button class="btn btn--primary auth__btn form__submit-btn">
                   Đăng nhập
                 </button>
-              </a>
             </div>
           </form>
         </div>
       </div>
     </main>
-    <script>
-      window.dispatchEvent(new Event("template-loaded"));
-    </script>
   </body>
 </html>
