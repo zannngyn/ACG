@@ -857,7 +857,7 @@ app.get("/hotdeal_child_xiaomi", async (req, res) => {
       price: price,
     })
   } else {
-    res.render("news.ejs", {
+    res.render("hotdeal_child_xiaomi.ejs", {
       check: check,
     })
   }
@@ -892,7 +892,7 @@ app.get("/hotdeal_child_samsung", async (req, res) => {
       price: price,
     })
   } else {
-    res.render("news.ejs", {
+    res.render("hotdeal_child_samsung.ejs", {
       check: check,
     })
   }
@@ -927,7 +927,7 @@ app.get("/hotdeal_child_oppo", async (req, res) => {
       price: price,
     })
   } else {
-    res.render("news.ejs", {
+    res.render("hotdeal_child_oppo.ejs", {
       check: check,
     })
   }
@@ -962,7 +962,7 @@ app.get("/hotdeal_child_iphone", async (req, res) => {
       price: price,
     })
   } else {
-    res.render("news.ejs", {
+    res.render("hotdeal_child_iphone.ejs", {
       check: check,
     })
   }
@@ -997,7 +997,7 @@ app.get("/hotdeal", async (req, res) => {
       price: price,
     })
   } else {
-    res.render("news.ejs", {
+    res.render("hotdeal.ejs", {
       check: check,
     })
   }
