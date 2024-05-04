@@ -19,7 +19,7 @@ const saltRounds = 10;
 env.config();
 
 // sử dụng bodyparser và express cho foder public
-app.use(express.json());
+// app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
