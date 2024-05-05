@@ -1,5 +1,7 @@
 # Deployment: https://smartphone-6u69.onrender.com/
 
+# Report: https://docs.google.com/document/d/1PgtEdfZRlANLBSshlhIJOLQvqOnnijZi/edit#heading=h.3rdcrjn
+
 # Official
 
 Một dự án nhỏ từ các thành viên nhóm 9 học phần IT6055 HaUI <3
