@@ -44,33 +44,29 @@
           <div id="mail-table" class="mail-table">
             <ul>
               <li class="mail-table-heading">
-                <div class="tdm">ID</div>
                 <div class="tdm">Tên Mail</div>
                 <div class="tdm">Ưu đãi nhận được(%)</div>
                 <div class="tdm">Hủy</div>
                 <div class="tdm">Đồng ý</div>
               </li>
+              <form action="/add_sale" method="post">
               <li class="mtable">
-                <div class="tdme">
-                  <input type="file" name="ID" placeholder="001" />
-                </div>
                 <div class="tdme">
                   <input
                     type="text"
-                    name="mail_name"
+                    name="email"
                     placeholder="mail_@gmail.com"
                   />
                 </div>
                 <div class="tdme">
-                  <input type="text" name="Preferential" placeholder="20" />
+                  <input type="number" name="sale" placeholder="20" />
                 </div>
                 <div class="tdme">
                   <input type="button" value="Hủy" />
                 </div>
-                <div class="tdme">
-                  <input type="button" value="Đồng ý" />
-                </div>
+                  <button>đồng ý</button>
               </li>
+            </form>
             </ul>
           </div>
           <div class="mail-items">
@@ -82,34 +78,15 @@
                 <div class="pro">Sửa</div>
                 <div class="pro">Xóa</div>
               </li>
+              <% for (i = 0; i < user_id.length; i++) {%>
               <li class="mail-item">
-                <div class="prod">001</div>
-                <div class="prod">haohopnguyen@gmail.com</div>
-                <div class="prod">10</div>
+                <div class="prod"><%= user_id[i] %></div>
+                <div class="prod"><%= email[i] %></div>
+                <div class="prod"><%= sale[i] %></div>
                 <div class="prod"><a href="#">Sửa</a></div>
                 <div class="prod"><a href="#">Xóa</a></div>
               </li>
-              <li class="mail-item">
-                <div class="prod">002</div>
-                <div class="prod">B@gmail.com</div>
-                <div class="prod">15</div>
-                <div class="prod"><a href="#">Sửa</a></div>
-                <div class="prod"><a href="#">Xóa</a></div>
-              </li>
-              <li class="mail-item">
-                <div class="prod">003</div>
-                <div class="prod">C@gmail.com</div>
-                <div class="prod">30</div>
-                <div class="prod"><a href="#">Sửa</a></div>
-                <div class="prod"><a href="#">Xóa</a></div>
-              </li>
-              <li class="mail-item">
-                <div class="prod">004</div>
-                <div class="prod">D@gmail.com</div>
-                <div class="prod">50</div>
-                <div class="prod"><a href="#">Sửa</a></div>
-                <div class="prod"><a href="#">Xóa</a></div>
-              </li>
+              <% } %>
             </ul>
           </div>
         </div>

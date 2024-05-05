@@ -3,7 +3,8 @@ CREATE TABLE users(
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(100) NOT NULL,
     displayname VARCHAR(50),
-    picture VARCHAR (100)
+    picture VARCHAR (100),
+    usersale INT
 );
 
 CREATE TABLE product(
@@ -52,6 +53,7 @@ CREATE TABLE Orders (
     homeaddress VARCHAR(150),
     Status VARCHAR(150)
 );
+
 
 select product.productid, product.image, product.brand, product.name, product.price
 from user_fav

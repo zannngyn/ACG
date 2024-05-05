@@ -269,7 +269,7 @@
                                   alt=""
                                 />
                               </button>
-                              <span>1</span>
+                              <span><%= fav_product_number[i] %></span>
                               <button class="cart-item__input-btn">
                                 <img
                                   class="icon"
@@ -317,7 +317,7 @@
                     <div class="col-4 col-xxl-5">
                       <div class="cart-info__row">
                         <span>Tổng:</span>
-                        <span><%= price %></span>
+                        <span><%= totalamount %></span>
                       </div>
                       <div class="cart-info__row">
                         <span>Phí vận chuyển:</span>
@@ -326,7 +326,7 @@
                       <div class="cart-info__separate"></div>
                       <div class="cart-info__row cart-info__row--bold">
                         <span>Tất toán:</span>
-                        <span><%= price %></span>
+                        <span><%= totalamount %></span>
                       </div>
                     </div>
                   </div>
@@ -340,14 +340,14 @@
                     >Số lượng
                     <span class="cart-info__sub-label">(Sản phẩm)</span></span
                   >
-                  <span><%= price %></span>
+                  <span><%= tong %></span>
                 </div>
                 <div class="cart-info__row">
                   <span
                     >Giá
                     <span class="cart-info__sub-label">(Ước tính)</span></span
                   >
-                  <span><%= price %></span>
+                  <span><%= totalamount %></span>
                 </div>
                 <div class="cart-info__row">
                   <span>Phí vận chuyển</span>
@@ -356,7 +356,7 @@
                 <div class="cart-info__separate"></div>
                 <div class="cart-info__row">
                   <span>Cần thanh toán</span>
-                  <span><%= price %></span>
+                  <span><%= totalamount %></span>
                 </div>
                 <a
                   href="./payment"

@@ -387,7 +387,7 @@ function fav_product_plus(button) {
     var xhr = new XMLHttpRequest();
 
     // Định nghĩa phương thức và URL của request
-    xhr.open("PATCH", "/user_favourite_plus", true);
+    xhr.open("POST", "/user_favourite_plus", true);
 
     // Thiết lập header cho request
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
