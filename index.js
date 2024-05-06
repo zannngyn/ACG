@@ -345,8 +345,8 @@ async function send_BUYED_EMAIL(user_email, products, numbers) {
     port: 587,
     secure: false,
     auth: {
-      user: "api",
-      pass: "93062445dfe6e7e503aa6491fecc18f5",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
     }
   });
 
@@ -374,8 +374,8 @@ async function send_FORGET_PASSWORD(user_email) {
     port: 587,
     secure: false,
     auth: {
-      user: "api",
-      pass: "93062445dfe6e7e503aa6491fecc18f5",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
     }
   });
 
