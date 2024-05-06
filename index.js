@@ -925,6 +925,7 @@ app.get("/send_email", async (req, res) => {
 app.get("/news", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -962,6 +963,7 @@ app.get("/news", async (req, res) => {
 app.get("/hotdeal_child_xiaomi", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -999,6 +1001,7 @@ app.get("/hotdeal_child_xiaomi", async (req, res) => {
 app.get("/hotdeal_child_samsung", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -1036,6 +1039,7 @@ app.get("/hotdeal_child_samsung", async (req, res) => {
 app.get("/hotdeal_child_oppo", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -1073,6 +1077,7 @@ app.get("/hotdeal_child_oppo", async (req, res) => {
 app.get("/hotdeal_child_iphone", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -1110,6 +1115,7 @@ app.get("/hotdeal_child_iphone", async (req, res) => {
 app.get("/hotdeal", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
