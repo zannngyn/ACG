@@ -81,20 +81,23 @@ async function checkHEART(userid, productid) {
 
 
 //kiểm tra sản phẩm dựa trên giá người dùng chọn
-async function checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series, userid) {
+async function checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series, product_name_search, userid) {
   let query;
   let params = [];
   const other = 'other';
 
-  if (product_name && minPrice && maxPrice) {
+  if (product_name_search && minPrice && maxPrice) {
     query = "SELECT * FROM product WHERE price BETWEEN $1 AND $2 AND UPPER(name) LIKE UPPER($3)";
-    params.push(minPrice, maxPrice, `%${product_name}%`);
+    params.push(minPrice, maxPrice, `%${product_name_search}%`);
   } else if (minPrice && maxPrice) {
     query = "SELECT * FROM product WHERE price BETWEEN $1 AND $2";
     params.push(minPrice, maxPrice);
-  } else if (product_name) {
+  } else if (product_name_search) {
     query = "SELECT * FROM product WHERE UPPER(name) LIKE UPPER($1)";
-    params.push(`%${product_name}%`);
+    params.push(`%${product_name_search}%`);
+  } else if (product_name) {
+    query = "SELECT * FROM product WHERE UPPER(name) = UPPER($1)";
+    params.push(`${product_name}`);
   } else if (product_brand == other) {
     query = "SELECT * FROM product WHERE brand = 'Sony' OR brand = 'LG' OR brand = 'Google' ";
   } else if (product_brand){
@@ -160,6 +163,7 @@ async function checkUSER_fav(id) {
 
   return [productID, productIMG, productNAME, productPRICE, productBRAND, productFAVNUMBER];
 };
+
 
 // kiểm tra từng sản phẩm
 async function checkPRODUCT_DETAIL(item) {
@@ -518,9 +522,10 @@ app.get("/", async (req, res) => {
   const product_name = req.query.product_name;
   const product_brand = req.query.product_brand;
   const product_series = req.query.product_series;
+  const product_name_search = req.query.product_name_search;
 
   // lấy thông tin chi tiết sản phẩm 
-  const [productID,productIMG,productNAME,productPRICE,productBRAND,] =await checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series);
+  const [productID,productIMG,productNAME,productPRICE,productBRAND,] =await checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series, product_name_search,);
 
   // kiểm tra xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
@@ -598,7 +603,8 @@ app.get("/product_detail", async (req, res) => {
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
     // const [,fav_product_img,,,] = await checkUSER_fav(id);
 
-    const [,,,,,productHEART] = await checkPRODUCT(id);
+    const productHEART = await checkHEART(id, item);
+    console.log(productHEART);
 
     //kiểm tra giá sản phẩm
     const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
@@ -913,6 +919,7 @@ app.get("/send_email", async (req, res) => {
 
     //tạo đơn hàng mới
     const createorder = await createORDER(email, fav_product_name, fav_product_number, phone_number, price, district_address, home_address)
+    
     const delete_fav_product = await DELETE_FAV_PRODUCT(id)
     //gửi email đơn hàng cho người dùng
     // const send_email = await send_BUYED_EMAIL(email, fav_product_name, fav_product_number)
@@ -1291,13 +1298,13 @@ app.post("/search", async (req,res) => {
   const maxPrice = req.body.maxPrice;
   const product_name = req.body.text;
   console.log(product_name);
-  res.redirect('/?minPrice=' + minPrice + '&maxPrice=' + maxPrice +'&product_name=' + product_name);
+  res.redirect('/?minPrice=' + minPrice + '&maxPrice=' + maxPrice +'&product_name_search=' + product_name);
 });
 
 app.post("/header_search", async (req,res) => {
   const product_name = req.body.text;
   console.log(product_name);
-  res.redirect('/?product_name=' + product_name);
+  res.redirect('/?product_name_search=' + product_name);
 });
 
 // taọ address cho người dùng dùn
@@ -1387,10 +1394,18 @@ app.post("/user_favourite_plus", async (req, res) => {
 
 //trừ đi 1 sản phẩm yêu thích trong cơ sở dữ liệu
 app.post("/user_favourite_minus", async (req, res) => {
-  const check = req.isAuthenticated();
-  if (check) {
-    const product_id = req.body.product_id;
-    const user_id = req.user.userid;
+  const product_id = req.body.product_id;
+  const user_id = req.user.userid;
+  let check = []
+  const result = await db.query("SELECT number FROM user_fav WHERE userid = $1 AND productid = $2",
+                                [user_id, product_id]
+  )
+
+  result.rows.forEach((row) => {
+    check.push(row.number);
+  })
+
+  if (check[0] > 1) {
     try {
       const result = await db.query("UPDATE user_fav SET number = number - 1 WHERE userid = $1 AND productid = $2 RETURNING *",
       [user_id, product_id]);
@@ -1401,7 +1416,7 @@ app.post("/user_favourite_minus", async (req, res) => {
       res.redirect("/favourite");
     }
   } else {
-    console.log("chưa đăng nhập người dùng");
+    console.log("số lượng không được âm");
   }
 });
 
@@ -1446,45 +1461,27 @@ app.post("/add_product", upload.single('description'), async (req, res) => {
   const name = req.body.product_name;
   const price = req.body.price;
   const description = req.file.description;
-  console.log(img_1);
-  console.log(img_2);
-  console.log(img_3);
-  console.log(img_4);
-  console.log(brand);
-  console.log(series);
-  console.log(name);
-  console.log(price);
-  console.log(description);
-
-  // var result = await mammoth.extractRawText({path: description})
-  // console.log(result);
-
 
   mammoth.extractRawText({path: req.file.path})
   .then(function(result){
-      var text = result.value; // The raw text
-      // console.log(text);
-      // fs.writeFileSync(outputfile,doc.getBody(),"utf-8")
+      var text = result.value;
+
       const extractor = new WordExtractor();
       const extracted = extractor.extract(req.file.path);
         extracted.then(async function(doc) { 
 
         const mota = doc.getBody()
         console.log(doc.getBody());
-        // fs.writeFileSync(outputfile,doc.getBody(),"utf-8")
-        // res.download(outputfile)
         
         const result2 = await db.query("INSERT INTO product (image, brand, name, price) VALUES ($1,$2,$3,$4) RETURNING *",
                                         [img_1, brand, name, price]);
-        // const result2 = await db.query ("SELECT * FROM product WHERE image = $1", [])
-        // console.log(result2);
+
         const productid = result2.rows.productid
         console.log(productid);
         const result3 = await db.query("INSERT INTO productdetail VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
                                         [productid, img_1, img_2, img_3, img_4, brand, series, name, price, mota])
       });
-      // const result2 = doc.getBody();
-      // console.log(result2);
+
       var messages = result.messages;
       console.log(messages);
   })
