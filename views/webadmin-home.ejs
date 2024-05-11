@@ -48,17 +48,19 @@
                 <div class="pro">địa chỉ nhà</div>
                 <div class="pro">trạng thái</div>
               </li>
+              <% for (i = 0; i < orderid.length; i++) {%>
               <li class="mail-item">
-                <div class="prod"><%= orderid %></div>
-                <div class="prod"><%= email %></div>
-                <div class="prod"><%= order_product %></div>
-                <div class="prod"><%= order_date %></div>
-                <div class="prod"><%= totalamount %></div>
-                <div class="prod"><%= phone_number %></div>
-                <div class="prod"><%= district_address %></div>
-                <div class="prod"><%= home_address %></div>
-                <div class="prod"><%= status %></div>
+                <div class="prod"><%= orderid[i] %></div>
+                <div class="prod"><%= email[i] %></div>
+                <div class="prod"><%= order_product[i] %></div>
+                <div class="prod"><%= order_date[i] %></div>
+                <div class="prod"><%= totalamount[i]%></div>
+                <div class="prod"><%= phone_number[i] %></div>
+                <div class="prod"><%= district_address[i] %></div>
+                <div class="prod"><%= home_address[i] %></div>
+                <div class="prod"><%= status[i] %></div>
               </li>
+            <% } %>
             </ul>
           </div>
         </div>
