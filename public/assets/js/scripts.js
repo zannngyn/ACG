@@ -263,37 +263,65 @@ function handleActiveMenu() {
  */
 // window.addEventListener("template-loaded", initJsToggle);
 
-function initJsToggle() {
-  // console.log($$(".js-toggle"));
-  $$(".js-toggle").forEach((button) => {
-    // console(88888888);
-    const target = button.getAttribute("toggle-target");
-    if (!target) {
-      document.body.innerText = `Cần thêm toggle-target cho: ${button.outerHTML}`;
+document.addEventListener("DOMContentLoaded", function initJsToggle() {
+  const button = document.getElementById("haha");
+  const target = button.getAttribute("toggle-target");
+  if (!target) {
+    document.body.innerText = `Cần thêm toggle-target cho:  ${button.outerHTML}`;
+  }
+  button.onclick = (e) => {
+    e.preventDefault();
+
+    if (!$(target)) {
+      return (document.body.innerText = `Không tìm thấy phần tử ${target}`);
     }
-    button.onclick = (e) => {
-      e.preventDefault();
+    const isHidden = $(target).classList.contains("hide");
 
-      if (!$(target)) {
-        return (document.body.innerText = `Không tìm thấy phần tử "${target}"`);
-      }
+    requestAnimationFrame(() => {
+      $(target).classList.toggle("hide", !isHidden);
+      $(target).classList.toggle("show", isHidden);
+    });
+  };
+  document.onclick = function (e) {
+    if (!e.target.closest(target)) {
       const isHidden = $(target).classList.contains("hide");
-
-      requestAnimationFrame(() => {
-        $(target).classList.toggle("hide", !isHidden);
-        $(target).classList.toggle("show", isHidden);
-      });
-    };
-    document.onclick = function (e) {
-      if (!e.target.closest(target)) {
-        const isHidden = $(target).classList.contains("hide");
-        if (!isHidden) {
-          button.click();
-        }
+      if (!isHidden) {
+        button.click();
       }
-    };
-  });
-}
+    }
+  };
+});
+// function initJsToggle() {
+//   //   console.log("aaaaaaaaaaaa");
+//   $$(".js-toggle").forEach((button) => {
+//     // console(88888888);
+//     const target = button.getAttribute("toggle-target");
+//     if (!target) {
+//       document.body.innerText = `Cần thêm toggle-target cho: ${button.outerHTML}`;
+//     }
+//     button.onclick = (e) => {
+//       e.preventDefault();
+
+//       if (!$(target)) {
+//         return (document.body.innerText = `Không tìm thấy phần tử "${target}"`);
+//       }
+//       const isHidden = $(target).classList.contains("hide");
+
+//       requestAnimationFrame(() => {
+//         $(target).classList.toggle("hide", !isHidden);
+//         $(target).classList.toggle("show", isHidden);
+//       });
+//     };
+//     document.onclick = function (e) {
+//       if (!e.target.closest(target)) {
+//         const isHidden = $(target).classList.contains("hide");
+//         if (!isHidden) {
+//           button.click();
+//         }
+//       }
+//     };
+//   });
+// }
 
 // window.addEventListener("template-loaded", () => {
 //     const links = $$(".js-dropdown-list > li > a");
@@ -335,6 +363,7 @@ function initJsToggle() {
 //         switchBtn.onclick =
 
 function theme_color() {
+  //   console.log("theme_color");
   const isDark = localStorage.dark === "true";
   document.querySelector("html").classList.toggle("dark", !isDark);
   localStorage.setItem("dark", !isDark);
