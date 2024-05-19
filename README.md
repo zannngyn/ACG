@@ -13,7 +13,8 @@ Một vài thông tin chi tiết:
    -Mở terminal, gõ "npm i"
 2. Tạo file .env thuộc thư mục smartphone
 3. Dán đoạn code vào file .env: (Do google client id nên không commit lên được)
-4. Chạy terminal, gõ "node test.js"
+4. tạo 1 folder đặt tên là "uploads"
+5. Chạy terminal, gõ "node smartphone.js"
   
 
 
