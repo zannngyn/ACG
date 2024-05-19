@@ -8,7 +8,9 @@ import GoogleStrategy from "passport-google-oauth2"
 import session from "express-session";
 import env from "dotenv";
 import nodemailer from "nodemailer";
+import multer from "multer";
 import mammoth from "mammoth";
+import WordExtractor from"word-extractor"
 // import { assign } from "nodemailer/lib/shared";
 // import axios from "axios";
 
@@ -17,6 +19,20 @@ const app = express();
 const port = 3000;
 const saltRounds = 10;
 env.config();
+
+// ghi địa chỉ thư mục làm bộ nhớ tạm để tạo sản phẩm mới
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads/')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, file.fieldname + '-' + uniqueSuffix)
+  }
+})
+
+const upload = multer({ storage: storage })
+
 
 // sử dụng bodyparser và express cho foder public
 // app.use(express.json());
@@ -35,12 +51,11 @@ app.use(
   })
 )
 
-// liên kết với cơ sở dữ liệu
-const { Pool } = pg;
 // sử dụng passport và session
 app.use(passport.initialize());
 app.use(passport.session());
 
+const { Pool } = pg;
 // liên kết với cơ sở dữ liệu
 const db = new Pool({
   // user: process.env.PG_USER,
@@ -68,19 +83,25 @@ async function checkHEART(userid, productid) {
 
 
 //kiểm tra sản phẩm dựa trên giá người dùng chọn
-async function checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series, userid) {
+async function checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series, product_name_search, userid) {
   let query;
   let params = [];
+  const other = 'other';
 
-  if (product_name && minPrice && maxPrice) {
+  if (product_name_search && minPrice && maxPrice) {
     query = "SELECT * FROM product WHERE price BETWEEN $1 AND $2 AND UPPER(name) LIKE UPPER($3)";
-    params.push(minPrice, maxPrice, `%${product_name}%`);
+    params.push(minPrice, maxPrice, `%${product_name_search}%`);
   } else if (minPrice && maxPrice) {
     query = "SELECT * FROM product WHERE price BETWEEN $1 AND $2";
     params.push(minPrice, maxPrice);
-  } else if (product_name) {
+  } else if (product_name_search) {
     query = "SELECT * FROM product WHERE UPPER(name) LIKE UPPER($1)";
-    params.push(`%${product_name}%`);
+    params.push(`%${product_name_search}%`);
+  } else if (product_name) {
+    query = "SELECT * FROM product WHERE UPPER(name) = UPPER($1)";
+    params.push(`${product_name}`);
+  } else if (product_brand == other) {
+    query = "SELECT * FROM product WHERE brand = 'Sony' OR brand = 'LG' OR brand = 'Google' ";
   } else if (product_brand){
     query = "SELECT * FROM product WHERE UPPER(brand) LIKE UPPER($1)";
     params.push(`%${product_brand}%`);
@@ -145,9 +166,51 @@ async function checkUSER_fav(id) {
   return [productID, productIMG, productNAME, productPRICE, productBRAND, productFAVNUMBER];
 };
 
+
 // kiểm tra từng sản phẩm
 async function checkPRODUCT_DETAIL(item) {
   const result = await db.query("SELECT *  FROM productdetail WHERE productid = $1", [item]);
+  let productIMG1 = [];
+  let productIMG2 = [];
+  let productIMG3 = [];
+  let productIMG4 = [];
+  let productNAME =[];
+  let productPRICE = [];
+  let productBRAND = [];
+  let productSERIES = [];
+  let productID =[];
+  let productDESCRIPTION = [];
+
+  result.rows.forEach((row) => {
+    productID.push(row.productid);
+    productIMG1.push(row.image1);
+    productIMG2.push(row.image2);
+    productIMG3.push(row.image3);
+    productIMG4.push(row.image4);
+    productBRAND.push(row.brand);
+    productSERIES.push(row.series)
+    productNAME.push(row.name);
+    productPRICE.push(row.price.toLocaleString('vi', {style : 'currency', currency : 'VND'}));
+    productDESCRIPTION.push(row.description);
+  });
+
+  return [
+    productID, 
+    productIMG1, 
+    productIMG2, 
+    productIMG3, 
+    productIMG4, 
+    productBRAND, 
+    productNAME, 
+    productPRICE, 
+    productDESCRIPTION, 
+    productSERIES
+  ];
+};
+
+// đưa ra toàn bộ sản phẩm mà không cần item
+async function checkPRODUCT_DETAIL_FOR_ADMIN() {
+  const result = await db.query("SELECT *  FROM productdetail");
   let productIMG1 = [];
   let productIMG2 = [];
   let productIMG3 = [];
@@ -192,6 +255,9 @@ async function checkPRICE(userid, fav_product_id) {
   let fav_product_price_per_product = [];
   let price = 0;
   let tong = 0; 
+  let SALE = 0;
+  let totalamount = 0;
+  const sale = await check_USER_SALE(userid);
 
   for (let i = 0; i < fav_product_id.length; i++) {
     const fav_product = fav_product_id[i];
@@ -219,7 +285,13 @@ async function checkPRICE(userid, fav_product_id) {
     });
     PRICE = PRICE + productPRICE[0]*number[0];
   };
+
+    SALE = PRICE * (sale / 100);
+    totalamount = PRICE - SALE;
+
     PRICE = PRICE.toLocaleString('vi', {style : 'currency', currency : 'VND'});
+    SALE = SALE.toLocaleString('vi', {style : 'currency', currency : 'VND'});
+    totalamount = totalamount.toLocaleString('vi', {style : 'currency', currency : 'VND'});
 
   for (let i = 0; i < fav_product_id.length; i++) {
     const fav_product = fav_product_id[i];
@@ -237,7 +309,9 @@ async function checkPRICE(userid, fav_product_id) {
   return [
     fav_product_price_per_product, 
     PRICE, 
-    tong
+    tong,
+    SALE,
+    totalamount
   ];
 }
 
@@ -277,8 +351,8 @@ async function send_BUYED_EMAIL(user_email, products, numbers) {
     port: 587,
     secure: false,
     auth: {
-      user: "api",
-      pass: "93062445dfe6e7e503aa6491fecc18f5",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
     }
   });
 
@@ -306,8 +380,8 @@ async function send_FORGET_PASSWORD(user_email) {
     port: 587,
     secure: false,
     auth: {
-      user: "api",
-      pass: "93062445dfe6e7e503aa6491fecc18f5",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
     }
   });
 
@@ -397,8 +471,51 @@ async function checkORDER() {
 }
 
 //xoá các sản phẩm đã yêu thích.
+async function DELETE_FAV_PRODUCT(userid) {
+  const result = await db.query("DELETE FROM user_fav WHERE userid = $1", [userid])
+}
 
+//xoá các sản phẩm mà admin muốn xoá
+async function DELETE_PRODUCT(productid) {
+  const result = await db.query("DELETE FROM product WHERE procuctid = $1", [productid]);
+  const result2 = await db.query("DELETE FROM productdetail WHERE procuctid = $1", [productid])
+}
 
+//kiểm tra sale của user
+async function check_USER_SALE(userid) {
+  const result = await db.query("SELECT userid, email, usersale FROM users WHERE userid = $1",[userid])
+
+  let sale = [];
+
+  result.rows.forEach((row) =>{
+    sale.push(row.usersale)
+  });
+
+  return[
+    sale
+  ]
+}
+
+//kiểm tra sale của tất cả user
+async function check_USER_SALE_ADMIN() {
+  const result = await db.query("SELECT userid, email, usersale FROM users")
+
+  let userid = [];
+  let email = [];
+  let sale = [];
+
+  result.rows.forEach((row) => {
+    userid.push(row.userid);
+    email.push(row.email);
+    sale.push(row.usersale)
+  });
+
+  return [
+    userid,
+    email,
+    sale
+  ]
+}
 
 //tìm kiếm sản phẩm dựa trên giá
 app.get("/", async (req, res) => {
@@ -407,9 +524,10 @@ app.get("/", async (req, res) => {
   const product_name = req.query.product_name;
   const product_brand = req.query.product_brand;
   const product_series = req.query.product_series;
+  const product_name_search = req.query.product_name_search;
 
   // lấy thông tin chi tiết sản phẩm 
-  const [productID,productIMG,productNAME,productPRICE,productBRAND,] =await checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series);
+  const [productID,productIMG,productNAME,productPRICE,productBRAND,] =await checkPRODUCT(minPrice, maxPrice, product_name, product_brand, product_series, product_name_search,);
 
   // kiểm tra xem có người dùng đăng nhập không?
   const check = req.isAuthenticated();
@@ -426,7 +544,7 @@ app.get("/", async (req, res) => {
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
 
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price,tong,sale, totalamount] = await checkPRICE(id, fav_product_id);
 
       res.render("index.ejs", {
         product_id: productID,
@@ -434,6 +552,7 @@ app.get("/", async (req, res) => {
         product_name: productNAME,
         product_price: productPRICE,
         product_brand: productBRAND,
+
         product_heart: productHEART,
 
         check: check,
@@ -447,6 +566,8 @@ app.get("/", async (req, res) => {
         fav_product_price: fav_product_price,
         fav_product_brand: fav_product_brand,
         price: price,
+        sale: sale,
+        totalamount: totalamount,
       });
 
   } else {
@@ -484,10 +605,11 @@ app.get("/product_detail", async (req, res) => {
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand,] = await checkUSER_fav(id);
     // const [,fav_product_img,,,] = await checkUSER_fav(id);
 
-    const [,,,,,productHEART] = await checkPRODUCT(id);
+    const productHEART = await checkHEART(id, item);
+    console.log(productHEART);
 
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
 
 
     res.render("product-detail.ejs", {
@@ -515,6 +637,8 @@ app.get("/product_detail", async (req, res) => {
       fav_product_price: fav_product_price,
       fav_product_brand: fav_product_brand,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     });
 
   } else {
@@ -550,7 +674,7 @@ app.get("/favourite", async (req, res) => {
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
 
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
 
 
     res.render("favourite.ejs", {
@@ -567,6 +691,8 @@ app.get("/favourite", async (req, res) => {
       fav_product_number: fav_product_number,
       fav_product_price_per_product: fav_product_price_per_product,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     });
   } else {
       res.redirect("/");
@@ -589,7 +715,7 @@ app.get("/checkout", async (req, res) => {
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
    
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price, tong] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
 
 
     res.render("checkout.ejs", {
@@ -607,6 +733,8 @@ app.get("/checkout", async (req, res) => {
       fav_product_price_per_product: fav_product_price_per_product,
       tong: tong,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     });
   } else {
     res.redirect("/");
@@ -632,7 +760,7 @@ app.get("/delivery", async (req,res) => {
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
    
     // kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price, tong] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
 
 
     res.render("delivery.ejs", {
@@ -655,6 +783,8 @@ app.get("/delivery", async (req,res) => {
       fav_product_price_per_product: fav_product_price_per_product,
       tong: tong,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     });
   } else {
     res.redirect("/")
@@ -679,7 +809,7 @@ app.get("/payment", async (req, res) => {
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand] = await checkUSER_fav(id);
    
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,tong] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
 
 
     res.render("payment.ejs", {
@@ -700,6 +830,8 @@ app.get("/payment", async (req, res) => {
       fav_product_brand: fav_product_brand,
       tong: tong,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     });
   } else {
       res.redirect("/");
@@ -724,7 +856,7 @@ app.get("/profile", async (req, res) => {
     const [fav_product_id,fav_product_img,fav_product_name,fav_product_price,fav_product_brand, fav_product_number] = await checkUSER_fav(id);
 
     // kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
 
 
     res.render("profile.ejs", {
@@ -744,6 +876,8 @@ app.get("/profile", async (req, res) => {
       fav_product_price: fav_product_price,
       fav_product_brand: fav_product_brand,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     });
   } else {
       res.redirect("/");
@@ -787,7 +921,8 @@ app.get("/send_email", async (req, res) => {
 
     //tạo đơn hàng mới
     const createorder = await createORDER(email, fav_product_name, fav_product_number, phone_number, price, district_address, home_address)
-
+    
+    const delete_fav_product = await DELETE_FAV_PRODUCT(id)
     //gửi email đơn hàng cho người dùng
     // const send_email = await send_BUYED_EMAIL(email, fav_product_name, fav_product_number)
     res.redirect("/profile")
@@ -799,6 +934,7 @@ app.get("/send_email", async (req, res) => {
 app.get("/news", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -809,7 +945,7 @@ app.get("/news", async (req, res) => {
 
 
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
 
     res.render("news.ejs", {
       check: check,
@@ -823,6 +959,8 @@ app.get("/news", async (req, res) => {
       fav_product_price: fav_product_price,
       fav_product_brand: fav_product_brand,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     })
   } else {
     res.render("news.ejs", {
@@ -834,6 +972,7 @@ app.get("/news", async (req, res) => {
 app.get("/hotdeal_child_xiaomi", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -844,7 +983,7 @@ app.get("/hotdeal_child_xiaomi", async (req, res) => {
 
 
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
     
     res.render("hotdeal_child_xiaomi.ejs", {
       check: check,
@@ -858,9 +997,11 @@ app.get("/hotdeal_child_xiaomi", async (req, res) => {
       fav_product_price: fav_product_price,
       fav_product_brand: fav_product_brand,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     })
   } else {
-    res.render("news.ejs", {
+    res.render("hotdeal_child_xiaomi.ejs", {
       check: check,
     })
   }
@@ -869,6 +1010,7 @@ app.get("/hotdeal_child_xiaomi", async (req, res) => {
 app.get("/hotdeal_child_samsung", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -879,7 +1021,7 @@ app.get("/hotdeal_child_samsung", async (req, res) => {
 
 
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
     
     res.render("hotdeal_child_samsung.ejs", {
       check: check,
@@ -893,9 +1035,11 @@ app.get("/hotdeal_child_samsung", async (req, res) => {
       fav_product_price: fav_product_price,
       fav_product_brand: fav_product_brand,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     })
   } else {
-    res.render("news.ejs", {
+    res.render("hotdeal_child_samsung.ejs", {
       check: check,
     })
   }
@@ -904,6 +1048,7 @@ app.get("/hotdeal_child_samsung", async (req, res) => {
 app.get("/hotdeal_child_oppo", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -914,7 +1059,7 @@ app.get("/hotdeal_child_oppo", async (req, res) => {
 
 
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
     
     res.render("hotdeal_child_oppo.ejs", {
       check: check,
@@ -928,9 +1073,11 @@ app.get("/hotdeal_child_oppo", async (req, res) => {
       fav_product_price: fav_product_price,
       fav_product_brand: fav_product_brand,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     })
   } else {
-    res.render("news.ejs", {
+    res.render("hotdeal_child_oppo.ejs", {
       check: check,
     })
   }
@@ -939,6 +1086,7 @@ app.get("/hotdeal_child_oppo", async (req, res) => {
 app.get("/hotdeal_child_iphone", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -949,7 +1097,7 @@ app.get("/hotdeal_child_iphone", async (req, res) => {
 
 
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
     
     res.render("hotdeal_child_iphone.ejs", {
       check: check,
@@ -963,9 +1111,11 @@ app.get("/hotdeal_child_iphone", async (req, res) => {
       fav_product_price: fav_product_price,
       fav_product_brand: fav_product_brand,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     })
   } else {
-    res.render("news.ejs", {
+    res.render("hotdeal_child_iphone.ejs", {
       check: check,
     })
   }
@@ -974,6 +1124,7 @@ app.get("/hotdeal_child_iphone", async (req, res) => {
 app.get("/hotdeal", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
+    const profile = req.user;
     const id = profile.userid;
     const email = profile.email;
     const displayname = profile.displayname;
@@ -984,7 +1135,7 @@ app.get("/hotdeal", async (req, res) => {
 
 
     //kiểm tra giá sản phẩm
-    const [fav_product_price_per_product, price,] = await checkPRICE(id, fav_product_id);
+    const [fav_product_price_per_product, price, tong, sale, totalamount] = await checkPRICE(id, fav_product_id);
     
     res.render("hotdeal.ejs", {
       check: check,
@@ -998,9 +1149,11 @@ app.get("/hotdeal", async (req, res) => {
       fav_product_price: fav_product_price,
       fav_product_brand: fav_product_brand,
       price: price,
+      sale: sale,
+      totalamount: totalamount,
     })
   } else {
-    res.render("news.ejs", {
+    res.render("hotdeal.ejs", {
       check: check,
     })
   }
@@ -1038,8 +1191,18 @@ app.get("/webadmin_tonkho", async (req, res) => {
 if (checking) {
   const check = req.user.email;
   if (check == process.env.ADMIN) {
+  const [productID,productIMG1,productIMG2,productIMG3,productIMG4,productBRAND,productNAME,productPRICE,productDESCRIPTION,productSERIES] =await checkPRODUCT_DETAIL_FOR_ADMIN();
     res.render("webadmin-tonkho.ejs", {
-
+      product_id: productID,
+      product_img1: productIMG1,
+      product_img2: productIMG2,
+      product_img3: productIMG3,
+      product_img4: productIMG4,
+      product_name: productNAME,
+      product_price: productPRICE,
+      product_brand: productBRAND,
+      product_series: productSERIES,
+      product_description: productDESCRIPTION,
     });
   } else {
     res.redirect("/webadmin_dangnhap")
@@ -1059,8 +1222,11 @@ app.get("/webadmin_uudai", async (req, res) => {
 if (checking) {
   const check = req.user.email;
   if (check == process.env.ADMIN) {
+    const [userid, email, sale] = await check_USER_SALE_ADMIN()
     res.render("webadmin-uudai.ejs", {
-
+      user_id: userid,
+      email: email,
+      sale: sale
     });
   } else {
     res.redirect("/webadmin_dangnhap")
@@ -1070,6 +1236,11 @@ if (checking) {
 }
 });
 
+app.get("delete_product", async (req, res) => {
+  const item = req.query.id;
+  const result = await DELETE_PRODUCT(item)
+  res.redirect("webadmin_tonkho")
+})
 
 app.post("/webadmin_dang_nhap", 
   passport.authenticate("admin", {
@@ -1129,13 +1300,13 @@ app.post("/search", async (req,res) => {
   const maxPrice = req.body.maxPrice;
   const product_name = req.body.text;
   console.log(product_name);
-  res.redirect('/?minPrice=' + minPrice + '&maxPrice=' + maxPrice +'&product_name=' + product_name);
+  res.redirect('/?minPrice=' + minPrice + '&maxPrice=' + maxPrice +'&product_name_search=' + product_name);
 });
 
 app.post("/header_search", async (req,res) => {
   const product_name = req.body.text;
   console.log(product_name);
-  res.redirect('/?product_name=' + product_name);
+  res.redirect('/?product_name_search=' + product_name);
 });
 
 // taọ address cho người dùng dùn
@@ -1204,7 +1375,7 @@ app.post("/user_favourite", async (req, res) => {
 });
 
 //thêm 1 sản phẩm yêu thích trong cơ sở dữ liệu
-app.patch("/user_favourite_plus", async (req, res) => {
+app.post("/user_favourite_plus", async (req, res) => {
   const check = req.isAuthenticated();
   if (check) {
     const product_id = req.body.product_id;
@@ -1225,10 +1396,18 @@ app.patch("/user_favourite_plus", async (req, res) => {
 
 //trừ đi 1 sản phẩm yêu thích trong cơ sở dữ liệu
 app.post("/user_favourite_minus", async (req, res) => {
-  const check = req.isAuthenticated();
-  if (check) {
-    const product_id = req.body.product_id;
-    const user_id = req.user.userid;
+  const product_id = req.body.product_id;
+  const user_id = req.user.userid;
+  let check = []
+  const result = await db.query("SELECT number FROM user_fav WHERE userid = $1 AND productid = $2",
+                                [user_id, product_id]
+  )
+
+  result.rows.forEach((row) => {
+    check.push(row.number);
+  })
+
+  if (check[0] > 1) {
     try {
       const result = await db.query("UPDATE user_fav SET number = number - 1 WHERE userid = $1 AND productid = $2 RETURNING *",
       [user_id, product_id]);
@@ -1239,7 +1418,7 @@ app.post("/user_favourite_minus", async (req, res) => {
       res.redirect("/favourite");
     }
   } else {
-    console.log("chưa đăng nhập người dùng");
+    console.log("số lượng không được âm");
   }
 });
 
@@ -1274,7 +1453,7 @@ app.post("/change_password", async (req, res) => {
 })
 
 //thêm sản phẩm
-app.post("/add_product", async (req, res) => {
+app.post("/add_product", upload.single('description'), async (req, res) => {
   const img_1 = req.body.image_upload_1;
   const img_2 = req.body.image_upload_2;
   const img_3 = req.body.image_upload_3;
@@ -1284,19 +1463,55 @@ app.post("/add_product", async (req, res) => {
   const name = req.body.product_name;
   const price = req.body.price;
   const description = req.file.description;
-  console.log(img_1);
-  console.log(img_2);
-  console.log(img_3);
-  console.log(img_4);
-  console.log(brand);
-  console.log(series);
-  console.log(name);
-  console.log(price);
-  console.log(description);
 
-  // var result = await mammoth.extractRawText({path: description})
-  // console.log(result);
+  mammoth.extractRawText({path: req.file.path})
+  .then(function(result){
+      var text = result.value;
 
+      const extractor = new WordExtractor();
+      const extracted = extractor.extract(req.file.path);
+        extracted.then(async function(doc) { 
+
+        const mota = doc.getBody()
+        console.log(doc.getBody());
+        
+        const result2 = await db.query("INSERT INTO product (image, brand, name, price) VALUES ($1,$2,$3,$4) RETURNING *",
+                                        [img_1, brand, name, price]);
+
+        const productid = result2.rows.productid
+        console.log(productid);
+        const result3 = await db.query("INSERT INTO productdetail VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
+                                        [productid, img_1, img_2, img_3, img_4, brand, series, name, price, mota])
+      });
+
+      var messages = result.messages;
+      console.log(messages);
+  })
+  .catch(function(error) {
+      console.error(error);
+  });
+  res.redirect("/webadmin_tonkho")
+})
+
+app.post("/add_sale", async (req,res) => {
+  const email = req.body.email;
+  const sale = req.body.sale;
+  console.log(email);
+  console.log(sale);
+
+  try {
+    const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (checkResult.rows.length > 0) {
+      const result = await db.query("UPDATE users SET usersale = $1 WHERE email = $2",
+                              [sale, email])
+      res.redirect("/webadmin_uudai")
+    } else {
+      res.send('không có tài khoản trên!')
+      res.redirect("/webadmin_uudai")
+    }
+  } catch (err) {
+    console.log(err);
+  }
 })
 
 // tạo tài khoản mới bằng email và mật khẩu
@@ -1318,8 +1533,8 @@ app.post("/sign_up", async (req, res) => {
             if (err) {
               console.error("error hashing password:", err);
             } else {
-              const result = await db.query("INSERT INTO users (email, password, displayname, picture) VALUES ($1, $2, $3, $4) RETURNING *",
-              [email, hash, "user", "https://i.ibb.co/DL59hYp/image.png"]);
+              const result = await db.query("INSERT INTO users (email, password, displayname, picture, usersale) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+              [email, hash, "user", "https://i.ibb.co/DL59hYp/image.png", 0]);
               const user = result.rows[0];
               req.login(user, (err) => {
                 console.log(err);
@@ -1433,8 +1648,8 @@ passport.use(
         ]);
         if (result.rows.length === 0) {
           const newUser = await db.query(
-            "INSERT INTO users (email, password, displayName, picture) VALUES ($1, $2, $3, $4)",
-            [profile.email, "google", profile.displayName, profile.picture]
+            "INSERT INTO users (email, password, displayName, picture, usersale) VALUES ($1, $2, $3, $4, $5)",
+            [profile.email, "google", profile.displayName, profile.picture, 0]
           );
           console.log("tạo tài khoản google thành công!");
           return cb(null, newUser.rows[0]);
