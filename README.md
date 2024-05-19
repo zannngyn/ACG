@@ -2,6 +2,8 @@
 
 # Báo cáo: https://docs.google.com/document/d/1zCtd-pSmjLRkygd-6EXBftLJ3-KO8v-G/edit?usp=sharing&ouid=118409468415927466075&rtpof=true&sd=true
 
+# nội dung file .env: https://vi.anotepad.com/notes/pp26n4jt
+
 # Official
 
 Một dự án nhỏ từ các thành viên nhóm 9 học phần IT6055 HaUI <3
