@@ -1,6 +1,6 @@
 # Biểu mẫu: https://docs.google.com/document/d/1le3xKp9UZjifOdlbNtk2P5SXFlhv21Wo/edit?usp=sharing&ouid=118409468415927466075&rtpof=true&sd=true
 
-# Báo cáo: https://docs.google.com/document/d/1zCtd-pSmjLRkygd-6EXBftLJ3-KO8v-G/edit?usp=sharing&ouid=118409468415927466075&rtpof=true&sd=true
+# Báo cáo: https://docs.google.com/document/d/1yZU6hsP9N16HY-oVPsuGEU5pCnZVHSnn/edit?usp=sharing&ouid=118409468415927466075&rtpof=true&sd=true
 
 # nội dung file .env: https://vi.anotepad.com/notes/pp26n4jt
 
